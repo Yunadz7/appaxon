@@ -24,7 +24,8 @@
     "react-native-calendars": "^1.1314.0",
     "react-native-gesture-handler": "^2.31.2",
     "react-native-reanimated": "^4.3.1",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "update": "^0.7.4"
   },
   "private": true
 }

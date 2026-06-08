@@ -12,7 +12,9 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { Calendar } from 'react-native-calendars';
 
-export default function TelaConsulta() {
+import Tela1 from '../Tela1';
+
+export default function TelaConsulta({ navigation }) {
   const [nome, setNome] = useState('');
   const [especialidade, setEspecialidade] = useState('');
   const [dataSelecionada, setDataSelecionada] = useState('');
@@ -124,7 +126,7 @@ Hora: ${horaSelecionada}`
       {/* BOTÃO */}
       <TouchableOpacity
   style={styles.botao}
-  onPress={() => navigation.navigate('Principal')}
+  onPress={() => navigation.navigate('Tela1')}
 >
   <Text style={{ color: '#fff' }}>Confirmar Consulta</Text>
 </TouchableOpacity>

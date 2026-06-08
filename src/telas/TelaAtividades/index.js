@@ -193,6 +193,8 @@ const styles = StyleSheet.create({
 
   background: {
     flex: 1,
+    height: '100%'
+  
   },
 
   scroll: {
@@ -340,5 +342,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  
 
 });
