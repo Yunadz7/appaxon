@@ -10,6 +10,8 @@ import {
   ScrollView,
 } from 'react-native';
 
+import { Picker } from '@react-native-picker/picker';
+
 export default function TelaRegistro({ navigation }) {
 
   const [humor, setHumor] = useState('');
@@ -54,7 +56,7 @@ export default function TelaRegistro({ navigation }) {
           Registro Diário
         </Text>
 
-        {/* humor */}
+        {/* HUMOR */}
         <Text style={styles.label}>
           Como está se sentindo hoje?
         </Text>
@@ -62,30 +64,21 @@ export default function TelaRegistro({ navigation }) {
         <View style={styles.humorContainer}>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              humor === 'Feliz' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, humor === 'Feliz' && styles.humorSelecionado]}
             onPress={() => setHumor('Feliz')}
           >
             <Text style={styles.emoji}>😄</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              humor === 'Neutro' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, humor === 'Neutro' && styles.humorSelecionado]}
             onPress={() => setHumor('Neutro')}
           >
             <Text style={styles.emoji}>😐</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              humor === 'Triste' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, humor === 'Triste' && styles.humorSelecionado]}
             onPress={() => setHumor('Triste')}
           >
             <Text style={styles.emoji}>😔</Text>
@@ -93,34 +86,45 @@ export default function TelaRegistro({ navigation }) {
 
         </View>
 
-        {/* sono */}
-        <Text style={styles.label}>
-          Quantas horas dormiu?
-        </Text>
+        {/* SONO (ESCALA 1–10) */}
+        <Text style={styles.label}>Sono (1 a 10)</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: 8 horas"
-          placeholderTextColor="#999"
-          value={sono}
-          onChangeText={setSono}
-        />
+        <View style={styles.input}>
+          <Picker
+            selectedValue={sono}
+            onValueChange={(value) => setSono(value)}
+          >
+            <Picker.Item label="Selecione" value="" />
+            {Array.from({ length: 10 }, (_, i) => (
+              <Picker.Item
+                key={i}
+                label={`${i + 1}`}
+                value={i + 1}
+              />
+            ))}
+          </Picker>
+        </View>
 
-        {/* ansiedade */}
-        <Text style={styles.label}>
-          Nível de ansiedade (0 a 10)
-        </Text>
+        {/* ANSIEDADE (ESCALA 1–10) */}
+        <Text style={styles.label}>Ansiedade (1 a 10)</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: 5"
-          placeholderTextColor="#999"
-          keyboardType="numeric"
-          value={ansiedade}
-          onChangeText={setAnsiedade}
-        />
+        <View style={styles.input}>
+          <Picker
+            selectedValue={ansiedade}
+            onValueChange={(value) => setAnsiedade(value)}
+          >
+            <Picker.Item label="Selecione" value="" />
+            {Array.from({ length: 10 }, (_, i) => (
+              <Picker.Item
+                key={i}
+                label={`${i + 1}`}
+                value={i + 1}
+              />
+            ))}
+          </Picker>
+        </View>
 
-        {/* energia */}
+        {/* ENERGIA */}
         <Text style={styles.label}>
           Como está sua energia hoje?
         </Text>
@@ -128,30 +132,21 @@ export default function TelaRegistro({ navigation }) {
         <View style={styles.humorContainer}>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              energia === 'Alta' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, energia === 'Alta' && styles.humorSelecionado]}
             onPress={() => setEnergia('Alta')}
           >
             <Text style={styles.emoji}>🔋</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              energia === 'Média' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, energia === 'Média' && styles.humorSelecionado]}
             onPress={() => setEnergia('Média')}
           >
             <Text style={styles.emoji}>⚡</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              energia === 'Baixa' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, energia === 'Baixa' && styles.humorSelecionado]}
             onPress={() => setEnergia('Baixa')}
           >
             <Text style={styles.emoji}>🪫</Text>
@@ -159,20 +154,26 @@ export default function TelaRegistro({ navigation }) {
 
         </View>
 
-        {/* água */}
-        <Text style={styles.label}>
-          Quantos copos de água tomou?
-        </Text>
+        {/* ÁGUA (ESCALA 1–10) */}
+        <Text style={styles.label}>Água (1 a 10)</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: 6 copos"
-          placeholderTextColor="#999"
-          value={agua}
-          onChangeText={setAgua}
-        />
+        <View style={styles.input}>
+          <Picker
+            selectedValue={agua}
+            onValueChange={(value) => setAgua(value)}
+          >
+            <Picker.Item label="Selecione" value="" />
+            {Array.from({ length: 10 }, (_, i) => (
+              <Picker.Item
+                key={i}
+                label={`${i + 1}`}
+                value={i + 1}
+              />
+            ))}
+          </Picker>
+        </View>
 
-        {/* medicação */}
+        {/* MEDICAÇÃO */}
         <Text style={styles.label}>
           Tomou a medicação?
         </Text>
@@ -180,20 +181,14 @@ export default function TelaRegistro({ navigation }) {
         <View style={styles.humorContainer}>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              medicacao === 'Sim' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, medicacao === 'Sim' && styles.humorSelecionado]}
             onPress={() => setMedicacao('Sim')}
           >
             <Text style={styles.emoji}>💊</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.humorBotao,
-              medicacao === 'Não' && styles.humorSelecionado
-            ]}
+            style={[styles.humorBotao, medicacao === 'Não' && styles.humorSelecionado]}
             onPress={() => setMedicacao('Não')}
           >
             <Text style={styles.emoji}>❌</Text>
@@ -201,7 +196,7 @@ export default function TelaRegistro({ navigation }) {
 
         </View>
 
-        {/* observações */}
+        {/* OBSERVAÇÕES */}
         <Text style={styles.label}>
           Observações
         </Text>
@@ -216,23 +211,13 @@ export default function TelaRegistro({ navigation }) {
           onChangeText={setObservacao}
         />
 
-        {/* salvar */}
+        {/* BOTÃO */}
         <TouchableOpacity
           style={styles.botao}
           onPress={salvarRegistro}
         >
           <Text style={styles.textoBotao}>
             Salvar Registro
-          </Text>
-        </TouchableOpacity>
-
-        {/* voltar */}
-        <TouchableOpacity
-          style={styles.botaoVoltar}
-          onPress={() => navigation.navigate('Home')}
-        >
-          <Text style={styles.textoBotao}>
-            Voltar
           </Text>
         </TouchableOpacity>
 
@@ -296,11 +281,10 @@ const styles = StyleSheet.create({
     width: 320,
     alignSelf: 'center',
     borderRadius: 15,
-    padding: 15,
     marginTop: 10,
     borderWidth: 1,
     borderColor: '#C7CBEA',
-    color: '#444',
+    overflow: 'hidden',
   },
 
   inputGrande: {
@@ -327,21 +311,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  botaoVoltar: {
-    backgroundColor: '#B8B8D1',
-    width: 250,
-    padding: 16,
-    borderRadius: 30,
-    alignSelf: 'center',
-    marginTop: 20,
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-
   textoBotao: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
   },
-
 });

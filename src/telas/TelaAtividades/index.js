@@ -11,64 +11,46 @@ import {
 export default function TelaAtividades({ navigation }) {
 
   const [atividades, setAtividades] = useState([
-    {
-      id: 1,
-      nome: 'Fazer exercício físico',
-      concluida: false,
-    },
-    {
-      id: 2,
-      nome: 'Beber água',
-      concluida: true,
-    },
-    {
-      id: 3,
-      nome: 'Dormir cedo',
-      concluida: false,
-    },
-    {
-      id: 4,
-      nome: 'Tomar medicação',
-      concluida: false,
-    },
-    {
-      id: 5,
-      nome: 'Meditar 10 minutos',
-      concluida: false,
-    },
-    {
-      id: 6,
-      nome: 'Comer frutas',
-      concluida: true,
-    },
+    { id: 1, nome: 'Fazer exercício físico', concluida: false },
+    { id: 2, nome: 'Beber água', concluida: true },
+    { id: 3, nome: 'Dormir cedo', concluida: false },
+    { id: 4, nome: 'Tomar medicação', concluida: false },
+    { id: 5, nome: 'Meditar 10 minutos', concluida: false },
+    { id: 6, nome: 'Comer frutas', concluida: true },
   ]);
 
-  const toggleAtividade = (id) => {
+  const toggleAtividade = async (id) => {
+  try {
+
+    const form = new FormData();
+    form.append("id", String(id)); // 🔥 força string
+
+    const response = await fetch("http://localhost/axon_api/toggle_atividade.php", {
+      method: "POST",
+      body: form,
+    });
+
+    const json = await response.json();
+    console.log(json);
 
     const novasAtividades = atividades.map((item) => {
-
       if (item.id === id) {
-        return {
-          ...item,
-          concluida: !item.concluida,
-        };
+        return { ...item, concluida: !item.concluida };
       }
-
       return item;
     });
 
     setAtividades(novasAtividades);
-  };
 
-  const concluidas = atividades.filter(
-    item => item.concluida
-  ).length;
+  } catch (error) {
+    console.log(error);
+  }
+};
+  const concluidas = atividades.filter(item => item.concluida).length;
 
-  const progresso =
-    (concluidas / atividades.length) * 100;
+  const progresso = (concluidas / atividades.length) * 100;
 
   return (
-
     <ImageBackground
       source={require('../../../assets/img_fundo.png')}
       style={styles.background}
@@ -81,58 +63,41 @@ export default function TelaAtividades({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
 
-        <Text style={styles.titulo}>
-          Atividades
-        </Text>
+        <Text style={styles.titulo}>Atividades</Text>
 
-        {/* progresso */}
+        {/* PROGRESSO */}
         <View style={styles.cardProgresso}>
-
-          <Text style={styles.textoProgresso}>
-            Seu progresso hoje
-          </Text>
-
+          <Text style={styles.textoProgresso}>Seu progresso hoje</Text>
           <Text style={styles.numeroProgresso}>
             {concluidas}/{atividades.length}
           </Text>
 
           <View style={styles.barraFundo}>
-
             <View
               style={[
                 styles.barra,
                 { width: `${progresso}%` }
               ]}
             />
-
           </View>
 
           <Text style={styles.porcentagem}>
             {Math.round(progresso)}% completo ✨
           </Text>
-
         </View>
 
-        {/* streak */}
+        {/* STREAK */}
         <View style={styles.cardStreak}>
-
-          <Text style={styles.streakTitulo}>
-            Sequência 🔥
-          </Text>
-
+          <Text style={styles.streakTitulo}>Sequência 🔥</Text>
           <Text style={styles.streakTexto}>
             Você manteve 4 dias seguidos!
           </Text>
-
         </View>
 
-        {/* lista */}
-        <Text style={styles.subtitulo}>
-          Atividades do dia
-        </Text>
+        {/* LISTA */}
+        <Text style={styles.subtitulo}>Atividades do dia</Text>
 
         {atividades.map((item) => (
-
           <TouchableOpacity
             key={item.id}
             style={[
@@ -141,45 +106,29 @@ export default function TelaAtividades({ navigation }) {
             ]}
             onPress={() => toggleAtividade(item.id)}
           >
+            <Text style={styles.nomeAtividade}>{item.nome}</Text>
 
-            <View>
-
-              <Text style={styles.nomeAtividade}>
-                {item.nome}
-              </Text>
-
-              <Text style={styles.status}>
-                {item.concluida
-                  ? 'Concluído ✅'
-                  : 'Pendente ⏳'}
-              </Text>
-
-            </View>
-
+            <Text style={styles.status}>
+              {item.concluida ? 'Concluído ✅' : 'Pendente ⏳'}
+            </Text>
           </TouchableOpacity>
-
         ))}
 
-        {/* sugestão */}
+        {/* SUGESTÃO */}
         <View style={styles.cardSugestao}>
-
-          <Text style={styles.sugestaoTitulo}>
-            Sugestão do dia 💡
-          </Text>
-
+          <Text style={styles.sugestaoTitulo}>Sugestão do dia 💡</Text>
           <Text style={styles.sugestaoTexto}>
             Faça uma caminhada de 15 minutos.
           </Text>
-
         </View>
 
-        {/* botão */}
+        {/* 🔵 BOTÃO CORRIGIDO */}
         <TouchableOpacity
           style={styles.botao}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('Tela1')}
         >
           <Text style={styles.textoBotao}>
-            Voltar 
+            Voltar
           </Text>
         </TouchableOpacity>
 
@@ -194,7 +143,6 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     height: '100%'
-  
   },
 
   scroll: {
@@ -342,6 +290,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
-  
-
 });
