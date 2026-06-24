@@ -22,20 +22,47 @@ export default function TelaRegistro({ navigation }) {
   const [medicacao, setMedicacao] = useState('');
   const [observacao, setObservacao] = useState('');
 
-  const salvarRegistro = () => {
+  const salvarRegistro = async () => {
 
     if (!humor || !sono || !ansiedade) {
-      Alert.alert(
-        'Aviso',
-        'Preencha os campos principais!'
-      );
+      Alert.alert('Aviso', 'Preencha os campos principais!');
       return;
     }
 
-    Alert.alert(
-      'Sucesso',
-      'Registro salvo com sucesso!'
-    );
+    try {
+
+      const response = await fetch(
+        'http://localhost/axon_api/cadastrar_registro.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id_usuario: 1,
+            humor,
+            sono,
+            ansiedade,
+            energia,
+            agua,
+            medicacao,
+            observacao,
+          }),
+        }
+      );
+
+      const json = await response.json();
+
+      if (json.sucesso) {
+        Alert.alert('Sucesso', 'Registro salvo!');
+      } else {
+        Alert.alert('Erro', json.erro);
+      }
+
+    } catch (erro) {
+      console.log(erro);
+      Alert.alert('Erro', 'Falha ao conectar');
+    }
   };
 
   return (
@@ -82,6 +109,13 @@ export default function TelaRegistro({ navigation }) {
             onPress={() => setHumor('Triste')}
           >
             <Text style={styles.emoji}>😔</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.humorBotao, humor === 'Irritado' && styles.humorSelecionado]}
+            onPress={() => setHumor('Irritado')}
+          >
+            <Text style={styles.emoji}>😡</Text>
           </TouchableOpacity>
 
         </View>
@@ -309,6 +343,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 40,
     alignItems: 'center',
+  },
+
+  humorContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 20,
   },
 
   textoBotao: {
