@@ -5,225 +5,121 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 export default function TelaBemEstar({ navigation }) {
-  return (
-    <View style={styles.container}>
+  const registos = [
+    { id: '1', emoji: "😟", data: "Hoje, 12/05", humor: "Ansioso", assunto: "Trabalho, estudos", nota: "7/10" },
+    { id: '2', emoji: "😊", data: "Ontem, 11/05", humor: "Tranquilo", assunto: "Família", nota: "5/10" },
+    { id: '3', emoji: "😡", data: "10/05", humor: "Estressado", assunto: "Provas", nota: "8/10" },
+    { id: '4', emoji: "😴", data: "09/05", humor: "Relaxado", assunto: "Fim de semana", nota: "3/10" },
+    { id: '5', emoji: "😰", data: "08/05", humor: "Muito ansioso", assunto: "Entrevista", nota: "9/10" },
+  ];
 
-      {/* HEADER */}
+  return (
+    // Voltamos ao View padrão com flex: 1. Às vezes o SafeAreaView nativo limita a altura no Android.
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F6FF" />
+
+      {/* HEADER: Fixo no topo */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color="#5B4FCF"
-          />
+        <TouchableOpacity onPress={() => navigation?.goBack()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Ionicons name="arrow-back" size={24} color="#5B4FCF" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>
-          Histórico
-        </Text>
+        <Text style={styles.headerTitle}>Histórico</Text>
 
-        <Ionicons
-          name="options-outline"
-          size={24}
-          color="#5B4FCF"
-        />
+        <Ionicons name="options-outline" size={24} color="#5B4FCF" />
       </View>
 
+      {/* SCROLLVIEW: Configuração ultra-segura para garantir a rolagem */}
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={true} // Ativado temporariamente para veres a barra de rolagem a funcionar
+        alwaysBounceVertical={true} // Força o efeito de mola no iOS
+        overScrollMode="always" // Força o feedback visual de rolagem no Android
+        keyboardShouldPersistTaps="handled"
       >
 
         {/* RESUMO */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>
-            Seus últimos 7 dias
-          </Text>
+          <Text style={styles.sectionTitle}>Os teus últimos 7 dias</Text>
 
           <View style={styles.statsRow}>
             <View style={styles.stat}>
               <Text style={styles.statNumber}>4</Text>
-              <Text style={styles.statLabel}>
-                Registros
-              </Text>
+              <Text style={styles.statLabel}>Registos</Text>
             </View>
 
             <View style={styles.stat}>
               <Text style={styles.statNumber}>7</Text>
-              <Text style={styles.statLabel}>
-                Média de ansiedade
-              </Text>
+              <Text style={styles.statLabel}>Média de ansiedade</Text>
             </View>
 
             <View style={styles.stat}>
-              <Text
-                style={[
-                  styles.statNumber,
-                  { color: '#FF4D6D' },
-                ]}
-              >
+              <Text style={[styles.statNumber, { color: '#FF4D6D' }]}>
                 ↑ 10%
               </Text>
-
-              <Text style={styles.statLabel}>
-                Semana passada
-              </Text>
+              <Text style={styles.statLabel}>Semana passada</Text>
             </View>
           </View>
         </View>
 
-        {/* GRAFICO */}
+        {/* GRÁFICO */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>
-            Evolução da ansiedade
-          </Text>
+          <Text style={styles.sectionTitle}>Evolução da ansiedade</Text>
 
           <View style={styles.graphArea}>
-            <Text style={styles.graphText}>
-              📈 Gráfico da ansiedade
-            </Text>
-
+            <Text style={styles.graphText}>📈 Gráfico da ansiedade</Text>
             <Text style={styles.graphSub}>
-              (adicione uma biblioteca de gráficos depois)
+              (adiciona uma biblioteca de gráficos depois)
             </Text>
           </View>
         </View>
 
-        {/* REGISTROS */}
-        <Text style={styles.registroTitulo}>
-          Seus registros
-        </Text>
+        {/* REGISTOS */}
+        <Text style={styles.registroTitulo}>Os teus registos</Text>
 
         <View style={styles.card}>
+          {registos.map((item, index) => (
+            <View 
+              key={item.id} 
+              style={[
+                styles.registroItem, 
+                index === registos.length - 1 && { borderBottomWidth: 0 }
+              ]}
+            >
+              <Text style={styles.emoji}>{item.emoji}</Text>
 
-          <RegistroItem
-            emoji="😟"
-            data="Hoje, 12/05"
-            humor="Ansioso"
-            assunto="Trabalho, estudos"
-            nota="7/10"
-          />
+              <View style={styles.registroInfo}>
+                <Text style={styles.data}>{item.data}</Text>
+                <Text style={styles.assunto}>
+                  {item.humor} • {item.assunto}
+                </Text>
+              </View>
 
-          <RegistroItem
-            emoji="😊"
-            data="Ontem, 11/05"
-            humor="Tranquilo"
-            assunto="Família"
-            nota="5/10"
-          />
+              <Text style={styles.nota}>{item.nota}</Text>
 
-          <RegistroItem
-            emoji="😡"
-            data="10/05"
-            humor="Estressado"
-            assunto="Provas"
-            nota="8/10"
-          />
-
-          <RegistroItem
-            emoji="😴"
-            data="09/05"
-            humor="Relaxado"
-            assunto="Fim de semana"
-            nota="3/10"
-          />
-
-          <RegistroItem
-            emoji="😰"
-            data="08/05"
-            humor="Muito ansioso"
-            assunto="Entrevista"
-            nota="9/10"
-          />
-
-          <RegistroItem
-            emoji="😐"
-            data="07/05"
-            humor="Neutro"
-            assunto="Rotina comum"
-            nota="5/10"
-          />
-
-          <RegistroItem
-            emoji="🤩"
-            data="06/05"
-            humor="Animado"
-            assunto="Projeto novo"
-            nota="2/10"
-          />
-
-          <RegistroItem
-            emoji="😁"
-            data="05/05"
-            humor="Feliz"
-            assunto="Amigos"
-            nota="1/10"
-          />
-
-          <RegistroItem
-            emoji="😥"
-            data="04/05"
-            humor="Preocupado"
-            assunto="Família"
-            nota="8/10"
-          />
-
+              <Ionicons name="chevron-forward" size={18} color="#999" />
+            </View>
+          ))}
         </View>
 
       </ScrollView>
-
     </View>
-  );
-}
-
-function RegistroItem({
-  emoji,
-  data,
-  humor,
-  assunto,
-  nota,
-}) {
-  return (
-    <TouchableOpacity style={styles.registroItem}>
-
-      <Text style={styles.emoji}>
-        {emoji}
-      </Text>
-
-      <View style={styles.registroInfo}>
-        <Text style={styles.data}>
-          {data}
-        </Text>
-
-        <Text style={styles.assunto}>
-          {humor} • {assunto}
-        </Text>
-      </View>
-
-      <Text style={styles.nota}>
-        {nota}
-      </Text>
-
-      <Ionicons
-        name="chevron-forward"
-        size={18}
-        color="#999"
-      />
-
-    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, // Ocupa 100% da altura do ecrã disponível
     backgroundColor: '#F4F6FF',
-    paddingTop: 50,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44, // Compensação manual para evitar bugs do SafeAreaView
   },
 
   header: {
@@ -231,7 +127,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingVertical: 15,
+    backgroundColor: '#F4F6FF',
+  },
+
+  scrollView: {
+    flex: 1, // Força o ScrollView a esticar e ocupar apenas o espaço restante abaixo do header
+  },
+
+  scrollContent: {
+    flexGrow: 1, // Crucial para permitir que o conteúdo se expanda além do ecrã e ative a rolagem
+    paddingBottom: 60, // Espaço extra no final para não cortar o último card
   },
 
   headerTitle: {
@@ -246,7 +152,17 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 15,
     marginBottom: 15,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
 
   sectionTitle: {

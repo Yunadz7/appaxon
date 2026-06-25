@@ -1,12 +1,10 @@
-import 'react-native-gesture-handler';
+import 'react-native-gesture-handler'; // 🔥 IMPORTANTE: Deve ser sempre a primeira linha do ficheiro!
 
 import React from 'react';
-import { StyleSheet } from 'react-native';
-
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 /* TELAS */
 import Principal from './src/telas/Principal';
@@ -30,165 +28,64 @@ import TelaAjuda from './src/telas/TelaAjuda';
 import TelaConexao from './src/telas/TelaConexao';
 import TelaBemEstar from './src/telas/TelaBemEstar';
 
-
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
-/* DRAWER */
+/* ROTAS DO DRAWER (Menu Lateral) */
 function DrawerRoutes() {
   return (
-
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
-
+        // Desativamos temporariamente os gestos nativos do Drawer para evitar conflitos de deslize nas telas internas
+        swipeEnabled: false,
+        gestureEnabled: false,
         drawerStyle: {
           backgroundColor: '#fff',
           width: 260,
         },
       }}
     >
-
-      {/* HOME */}
-      <Drawer.Screen
-        name="Home"
-        component={Tela1}
-      />
-
-      {/* PERFIL */}
-      <Drawer.Screen
-        name="Perfil"
-        component={TelaUsuario}
-      />
-
+      <Drawer.Screen name="Home" component={Tela1} />
+      <Drawer.Screen name="Perfil" component={TelaUsuario} />
     </Drawer.Navigator>
   );
 }
 
+/* COMPONENTE PRINCIPAL (App) */
 export default function App() {
-
   return (
+    // O flex: 1 aqui garante que todo o sistema de navegação e as telas internas ocupem 100% da altura do ecrã
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Principal"
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="Principal" component={Principal} />
+          <Stack.Screen name="Tela1" component={DrawerRoutes} />
+          <Stack.Screen name="Tabs" component={Tabs} />
 
-    <NavigationContainer>
+          <Stack.Screen name="Tela2" component={Tela2} />
+          <Stack.Screen name="Tela3" component={Tela3} />
+          <Stack.Screen name="Tela4" component={Tela4} />
+          <Stack.Screen name="Tela5" component={Tela5} />
+          <Stack.Screen name="Tela6" component={Tela6} />
+          <Stack.Screen name="Tela7" component={Tela7} />
 
-      <Stack.Navigator
-        initialRouteName="Principal"
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-
-        {/* PRINCIPAL */}
-        <Stack.Screen
-          name="Principal"
-          component={Principal}
-        />
-
-        {/* DRAWER */}
-        <Stack.Screen
-          name="Tela1"
-          component={DrawerRoutes}
-        />
-
-        {/* TABS */}
-        <Stack.Screen
-          name="Tabs"
-          component={Tabs}
-        />
-
-        {/* OUTRAS */}
-        <Stack.Screen
-          name="Tela2"
-          component={Tela2}
-        />
-
-        <Stack.Screen
-          name="Tela3"
-          component={Tela3}
-        />
-
-        <Stack.Screen
-          name="Tela4"
-          component={Tela4}
-        />
-
-        <Stack.Screen
-          name="Tela5"
-          component={Tela5}
-        />
-
-        <Stack.Screen
-          name="Tela6"
-          component={Tela6}
-        />
-
-        <Stack.Screen
-          name="Tela7"
-          component={Tela7}
-        />
-
-        {/* NOVAS TELAS */}
-        <Stack.Screen
-          name="TelaUsuario"
-          component={TelaUsuario}
-        />
-
-        <Stack.Screen
-          name="TelaAtividades"
-          component={TelaAtividades}
-        />
-
-        <Stack.Screen
-          name="TelaConsulta"
-          component={TelaConsulta}
-        />
-
-        <Stack.Screen
-          name="TelaNovidades"
-          component={TelaNovidades}
-        />
-
-        <Stack.Screen
-          name="TelaRegistro"
-          component={TelaRegistro}
-        />
-
-        <Stack.Screen
-          name="TelaDispositivo"
-          component={TelaDispositivo}
-        />
-
-        <Stack.Screen
-          name="TelaAjuda"
-          component={TelaAjuda}
-        />
-
-        <Stack.Screen
-          name="TelaConexao"
-          component={TelaConexao}
-        />
-
-        <Stack.Screen
-          name="TelaBemEstar"
-          component={TelaBemEstar}
-        />
-        
-
-        
-
-      </Stack.Navigator>
-
-    </NavigationContainer>
+          <Stack.Screen name="TelaUsuario" component={TelaUsuario} />
+          <Stack.Screen name="TelaAtividades" component={TelaAtividades} />
+          <Stack.Screen name="TelaConsulta" component={TelaConsulta} />
+          <Stack.Screen name="TelaNovidades" component={TelaNovidades} />
+          <Stack.Screen name="TelaRegistro" component={TelaRegistro} />
+          <Stack.Screen name="TelaDispositivo" component={TelaDispositivo} />
+          <Stack.Screen name="TelaAjuda" component={TelaAjuda} />
+          <Stack.Screen name="TelaConexao" component={TelaConexao} />
+          <Stack.Screen name="TelaBemEstar" component={TelaBemEstar} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-});
