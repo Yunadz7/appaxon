@@ -21,8 +21,13 @@ export default function TelaBemEstar({ navigation }) {
   ];
 
   return (
-    // Voltamos ao View padrão com flex: 1. Às vezes o SafeAreaView nativo limita a altura no Android.
+
+    
     <View style={styles.container}>
+       <ScrollView
+         
+              showsVerticalScrollIndicator={true}
+            >
       <StatusBar barStyle="dark-content" backgroundColor="#F4F6FF" />
 
       {/* HEADER: Fixo no topo */}
@@ -36,15 +41,7 @@ export default function TelaBemEstar({ navigation }) {
         <Ionicons name="options-outline" size={24} color="#5B4FCF" />
       </View>
 
-      {/* SCROLLVIEW: Configuração ultra-segura para garantir a rolagem */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={true} // Ativado temporariamente para veres a barra de rolagem a funcionar
-        alwaysBounceVertical={true} // Força o efeito de mola no iOS
-        overScrollMode="always" // Força o feedback visual de rolagem no Android
-        keyboardShouldPersistTaps="handled"
-      >
+     
 
         {/* RESUMO */}
         <View style={styles.card}>
@@ -87,10 +84,10 @@ export default function TelaBemEstar({ navigation }) {
 
         <View style={styles.card}>
           {registos.map((item, index) => (
-            <View 
-              key={item.id} 
+            <View
+              key={item.id}
               style={[
-                styles.registroItem, 
+                styles.registroItem,
                 index === registos.length - 1 && { borderBottomWidth: 0 }
               ]}
             >
@@ -117,9 +114,9 @@ export default function TelaBemEstar({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ocupa 100% da altura do ecrã disponível
+    flex: 1,
     backgroundColor: '#F4F6FF',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44, // Compensação manual para evitar bugs do SafeAreaView
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44,
   },
 
   header: {
@@ -131,13 +128,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F6FF',
   },
 
-  scrollView: {
-    flex: 1, // Força o ScrollView a esticar e ocupar apenas o espaço restante abaixo do header
-  },
-
-  scrollContent: {
-    flexGrow: 1, // Crucial para permitir que o conteúdo se expanda além do ecrã e ative a rolagem
-    paddingBottom: 60, // Espaço extra no final para não cortar o último card
+ scroll: {
+    paddingBottom: 120,
   },
 
   headerTitle: {

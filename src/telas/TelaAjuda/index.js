@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,12 +16,68 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
-// Captura a altura real da tela para forçar o limite físico no container
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function TelaAjuda() {
   const [nomeContato, setNomeContato] = useState('');
   const [numeroContato, setNumeroContato] = useState('');
+
+  const URL_SALVAR =
+    'http://localhost/axon_api/salvar_contato.php';
+
+  const URL_BUSCAR =
+  'http://localhost/axon_api/buscar_contato.php?id_usuario=1';
+
+    
+  useEffect(() => {
+    carregarContato();
+  }, []);
+
+  async function salvarContato() {
+    if (!nomeContato || !numeroContato) {
+      alert('Preencha todos os campos');
+      return;
+    }
+
+    try {
+      const resposta = await fetch(URL_SALVAR, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id_usuario: 1,
+          nome_contato: nomeContato,
+          numero: numeroContato,
+        }),
+      });
+
+      const dados = await resposta.json();
+
+      if (dados.sucesso) {
+        alert('Contato salvo com sucesso!');
+      } else {
+        alert(dados.mensagem);
+      }
+    } catch (erro) {
+      console.log(erro);
+      alert('Erro ao conectar ao servidor');
+    }
+  }
+
+  async function carregarContato() {
+    try {
+      const resposta = await fetch(URL_BUSCAR);
+      const dados = await resposta.json();
+
+      if (dados.sucesso) {
+        setNomeContato(dados.nome);
+        setNumeroContato(dados.telefone);
+      }
+    } catch (erro) {
+      console.log(erro);
+    }
+  }
 
   function ligarCVV() {
     Linking.openURL('tel:188');
@@ -38,15 +95,11 @@ export default function TelaAjuda() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={true}
-        bounces={true}
-        overScrollMode="always"
       >
-        {/* TITULO */}
         <Text style={styles.titulo}>
           Ajuda & Emergência
         </Text>
 
-        {/* CARD CVV */}
         <View style={styles.card}>
           <View style={styles.iconBox}>
             <Ionicons
@@ -61,7 +114,8 @@ export default function TelaAjuda() {
           </Text>
 
           <Text style={styles.cardTexto}>
-            O CVV oferece apoio emocional gratuito 24 horas por dia.
+            O CVV oferece apoio emocional gratuito
+            24 horas por dia.
           </Text>
 
           <Text style={styles.numeroCVV}>
@@ -83,7 +137,6 @@ export default function TelaAjuda() {
           </TouchableOpacity>
         </View>
 
-        {/* CONTATO */}
         <View style={styles.card}>
           <Text style={styles.cardTitulo}>
             Contato de Emergência
@@ -92,6 +145,7 @@ export default function TelaAjuda() {
           <Text style={styles.label}>
             Nome do contato
           </Text>
+
           <TextInput
             style={styles.input}
             placeholder="Digite o nome"
@@ -103,6 +157,7 @@ export default function TelaAjuda() {
           <Text style={styles.label}>
             Número de telefone
           </Text>
+
           <TextInput
             style={styles.input}
             placeholder="(00) 00000-0000"
@@ -114,6 +169,7 @@ export default function TelaAjuda() {
 
           <TouchableOpacity
             style={styles.botaoSalvar}
+            onPress={salvarContato}
           >
             <Ionicons
               name="save-outline"
@@ -126,7 +182,6 @@ export default function TelaAjuda() {
           </TouchableOpacity>
         </View>
 
-        {/* CONTATO SALVO */}
         {numeroContato !== '' && (
           <View style={styles.card}>
             <Text style={styles.cardTitulo}>
@@ -134,7 +189,7 @@ export default function TelaAjuda() {
             </Text>
 
             <Text style={styles.contatoNome}>
-              {nomeContato || 'Contato sem nome'}
+              {nomeContato}
             </Text>
 
             <Text style={styles.contatoNumero}>
@@ -161,45 +216,45 @@ export default function TelaAjuda() {
   );
 }
 
-/* ESTILOS DEFINITIVOS PARA FUNCIONAMENTO DA ROLAGEM */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // Limita a altura física da tela para forçar o scroll a funcionar
     height: SCREEN_HEIGHT,
     maxHeight: SCREEN_HEIGHT,
     backgroundColor: '#F7F7FB',
-    // Corrige espaçamento para Android não cobrir a barra de status
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop:
+      Platform.OS === 'android'
+        ? StatusBar.currentHeight
+        : 0,
   },
+
   scrollView: {
     flex: 1,
     width: '100%',
   },
+
   scrollContainer: {
     flexGrow: 1,
     padding: 20,
-    paddingBottom: 50, // Garante folga no final da rolagem
+    paddingBottom: 50,
   },
+
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
     marginTop: 10,
-    textAlign: 'left',
   },
+
   card: {
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    elevation: 2, // Sombra para Android
-    shadowColor: '#000', // Sombra para iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    elevation: 2,
   },
+
   iconBox: {
     alignSelf: 'center',
     backgroundColor: '#F0EBFF',
@@ -210,6 +265,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
   },
+
   cardTitulo: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -217,13 +273,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+
   cardTexto: {
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 20,
     marginBottom: 15,
   },
+
   numeroCVV: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -231,64 +288,62 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+
   botaoCVV: {
     backgroundColor: '#8B6DFF',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 15,
     borderRadius: 12,
   },
+
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#444',
-    marginBottom: 6,
     marginTop: 15,
+    marginBottom: 6,
+    fontWeight: '600',
   },
+
   input: {
     backgroundColor: '#F3F2F7',
     borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: '#333',
+    padding: 12,
   },
+
   botaoSalvar: {
     backgroundColor: '#4B3FAF',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 15,
     borderRadius: 12,
     marginTop: 20,
   },
+
   contatoNome: {
-    fontSize: 16,
+    textAlign: 'center',
     fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginTop: 5,
+    fontSize: 16,
   },
+
   contatoNumero: {
-    fontSize: 14,
-    color: '#666',
     textAlign: 'center',
-    marginBottom: 15,
-    marginTop: 2,
+    color: '#666',
+    marginVertical: 10,
   },
+
   botaoEmergencia: {
     backgroundColor: '#E53935',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 15,
     borderRadius: 12,
   },
+
   textoBotao: {
     color: '#fff',
     fontWeight: 'bold',
     marginLeft: 8,
-    fontSize: 16,
   },
 });
