@@ -6,6 +6,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 
 export default function TelaAtividades({ navigation }) {
@@ -19,35 +20,43 @@ export default function TelaAtividades({ navigation }) {
     { id: 6, nome: 'Comer frutas', concluida: true },
   ]);
 
-  const toggleAtividade = async (id) => {
+  // ✅ TOGGLE LOCAL (CORRIGIDO)
+  const toggleAtividade = (id) => {
+    const novas = atividades.map(item =>
+      item.id === id
+        ? { ...item, concluida: !item.concluida }
+        : item
+    );
+
+    setAtividades(novas);
+  };
+
+  // 🔥 ENVIAR PRO BANCO
+  // 🔥 ENVIAR PRO BANCO (toggle_atividade.php)
+const cadastrarAtividades = async () => {
   try {
+    for (const item of atividades) {
+      const form = new FormData();
+      form.append("id_usuario", 1); // coloca o usuário logado aqui
+      form.append("id_atividade", item.id);
+      form.append("concluida", item.concluida ? 1 : 0);
 
-    const form = new FormData();
-    form.append("id", String(id)); // 🔥 força string
+      const res = await fetch("http://localhost/axon_api/toggle_atividade.php", {
+        method: "POST",
+        body: form,
+      });
 
-    const response = await fetch("http://localhost/axon_api/toggle_atividade.php", {
-      method: "POST",
-      body: form,
-    });
+      console.log(await res.text());
+    }
 
-    const json = await response.json();
-    console.log(json);
-
-    const novasAtividades = atividades.map((item) => {
-      if (item.id === id) {
-        return { ...item, concluida: !item.concluida };
-      }
-      return item;
-    });
-
-    setAtividades(novasAtividades);
-
+    Alert.alert("Sucesso", "Atividades salvas!");
   } catch (error) {
     console.log(error);
+    Alert.alert("Erro", "Falha ao salvar");
   }
 };
-  const concluidas = atividades.filter(item => item.concluida).length;
 
+  const concluidas = atividades.filter(item => item.concluida).length;
   const progresso = (concluidas / atividades.length) * 100;
 
   return (
@@ -73,12 +82,7 @@ export default function TelaAtividades({ navigation }) {
           </Text>
 
           <View style={styles.barraFundo}>
-            <View
-              style={[
-                styles.barra,
-                { width: `${progresso}%` }
-              ]}
-            />
+            <View style={[styles.barra, { width: `${progresso}%` }]} />
           </View>
 
           <Text style={styles.porcentagem}>
@@ -107,7 +111,6 @@ export default function TelaAtividades({ navigation }) {
             onPress={() => toggleAtividade(item.id)}
           >
             <Text style={styles.nomeAtividade}>{item.nome}</Text>
-
             <Text style={styles.status}>
               {item.concluida ? 'Concluído ✅' : 'Pendente ⏳'}
             </Text>
@@ -122,7 +125,17 @@ export default function TelaAtividades({ navigation }) {
           </Text>
         </View>
 
-        {/* 🔵 BOTÃO CORRIGIDO */}
+        {/* BOTÃO CADASTRAR */}
+        <TouchableOpacity
+          style={[styles.botao, { backgroundColor: '#6d9c7b' }]}
+          onPress={cadastrarAtividades}
+        >
+          <Text style={styles.textoBotao}>
+            Cadastrar no banco
+          </Text>
+        </TouchableOpacity>
+
+        {/* VOLTAR */}
         <TouchableOpacity
           style={styles.botao}
           onPress={() => navigation.navigate('Tela1')}
@@ -139,7 +152,6 @@ export default function TelaAtividades({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-
   background: {
     flex: 1,
     height: '100%'
@@ -275,14 +287,14 @@ const styles = StyleSheet.create({
   },
 
   botao: {
-    backgroundColor: '#9BC6B8',
     padding: 15,
     borderRadius: 30,
     alignItems: 'center',
     width: 220,
     alignSelf: 'center',
     marginTop: 40,
-    marginBottom: 40,
+    marginBottom: 10,
+    backgroundColor: '#9BC6B8',
   },
 
   textoBotao: {

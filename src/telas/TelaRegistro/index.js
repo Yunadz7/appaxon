@@ -23,45 +23,50 @@ export default function TelaRegistro({ navigation }) {
   const [observacao, setObservacao] = useState('');
 
   const salvarRegistro = async () => {
-
     if (!humor || !sono || !ansiedade) {
       Alert.alert('Aviso', 'Preencha os campos principais!');
       return;
     }
 
     try {
+      const response = await fetch('http://localhost/axon_api/cadastrar_registro.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id_usuario: 1,
+          emocoes: humor,
+          sono,
+          ansiedade,
+          energia: energia === 'Alta' ? 3 : energia === 'Média' ? 2 : 1,
+          agua,
+          medicacao: medicacao === 'Sim' ? 1 : 0,
+          observacoes: observacao,
+        }),
+      });
 
-      const response = await fetch(
-        'http://localhost/axon_api/cadastrar_registro.php',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id_usuario: 1,
-            humor,
-            sono,
-            ansiedade,
-            energia,
-            agua,
-            medicacao,
-            observacao,
-          }),
-        }
-      );
+      const text = await response.text();
+      console.log('Resposta PHP:', text);
 
-      const json = await response.json();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (e) {
+        console.log('Erro JSON:', text);
+        Alert.alert('Erro', 'Resposta inválida do servidor');
+        return;
+      }
 
       if (json.sucesso) {
         Alert.alert('Sucesso', 'Registro salvo!');
       } else {
-        Alert.alert('Erro', json.erro);
+        Alert.alert('Erro', json.erro || 'Erro ao salvar');
       }
 
     } catch (erro) {
       console.log(erro);
-      Alert.alert('Erro', 'Falha ao conectar');
+      Alert.alert('Erro', 'Falha ao conectar com o servidor');
     }
   };
 
@@ -255,6 +260,15 @@ export default function TelaRegistro({ navigation }) {
           </Text>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.botaoVoltar}
+          onPress={() => navigation.navigate('Tela1')}
+        >
+          <Text style={styles.textoVoltar}>
+            Voltar
+          </Text>
+        </TouchableOpacity>
+
       </ScrollView>
 
     </ImageBackground>
@@ -350,6 +364,21 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     marginTop: 20,
+  },
+  botaoVoltar: {
+    backgroundColor: '#ccc',
+    width: 250,
+    padding: 14,
+    borderRadius: 30,
+    alignSelf: 'center',
+    marginTop: 15,
+    alignItems: 'center',
+  },
+
+  textoVoltar: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: '600',
   },
 
   textoBotao: {

@@ -80,8 +80,6 @@ export default function Tela1({ navigation }) {
 
             <Text style={styles.textoCard}>
               Registro{"\n"}
-              nenhum registro{"\n"}
-              hoje
             </Text>
 
           </TouchableOpacity>
