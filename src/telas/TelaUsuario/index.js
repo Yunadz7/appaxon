@@ -14,6 +14,14 @@ export default function TelaUsuario({ navigation }) {
   return (
     <View style={styles.container}>
 
+      {/* BOTÃO MENU (DRAWER) */}
+      <TouchableOpacity
+        style={styles.botaoMenu}
+        onPress={() => navigation.openDrawer()}
+      >
+        <Text style={styles.textoMenu}>☰</Text>
+      </TouchableOpacity>
+
       {/* HEADER */}
       <View style={styles.header}>
         <Ionicons name="notifications-outline" size={24} color="#333" />
@@ -31,20 +39,20 @@ export default function TelaUsuario({ navigation }) {
         </View>
 
         {/* CARD BEM-ESTAR */}
-<TouchableOpacity
-  activeOpacity={0.8}
-  style={styles.card}
-  onPress={() => navigation.navigate('TelaBemEstar')}
->
-  <Text style={styles.cardTitle}>Meu Bem-estar hoje</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.card}
+          onPress={() => navigation.navigate('TelaBemEstar')}
+        >
+          <Text style={styles.cardTitle}>Meu Bem-estar hoje</Text>
 
-  <View style={styles.moods}>
-    <Text>😊</Text>
-    <Text>😐</Text>
-    <Text>😢</Text>
-    <Text>😃</Text>
-  </View>
-</TouchableOpacity>
+          <View style={styles.moods}>
+            <Text>😊</Text>
+            <Text>😐</Text>
+            <Text>😢</Text>
+            <Text>😃</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* RESUMO */}
         <View style={styles.card}>
@@ -69,7 +77,7 @@ export default function TelaUsuario({ navigation }) {
           <MenuItem
             icon="help-circle-outline"
             text="Ajuda"
-             onPress={() => navigation.navigate('TelaAjuda')}
+            onPress={() => navigation.navigate('TelaAjuda')}
           />
 
           <MenuItem
@@ -88,10 +96,7 @@ export default function TelaUsuario({ navigation }) {
 /* MENU ITEM */
 function MenuItem({ icon, text, danger, onPress }) {
   return (
-    <TouchableOpacity
-      style={styles.menuItem}
-      onPress={onPress}
-    >
+    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
       <Ionicons
         name={icon}
         size={22}
@@ -107,11 +112,7 @@ function MenuItem({ icon, text, danger, onPress }) {
         {text}
       </Text>
 
-      <Ionicons
-        name="chevron-forward"
-        size={20}
-        color="#aaa"
-      />
+      <Ionicons name="chevron-forward" size={20} color="#aaa" />
     </TouchableOpacity>
   );
 }
@@ -121,6 +122,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F4F6FF',
     paddingTop: 50,
+  },
+
+  /* BOTÃO MENU */
+  botaoMenu: {
+    position: 'absolute',
+    top: 55,
+    left: 20,
+    width: 45,
+    height: 45,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+    elevation: 5,
+  },
+
+  textoMenu: {
+    fontSize: 28,
+    color: '#555',
+    marginTop: -2,
   },
 
   header: {

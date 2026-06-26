@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -18,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-export default function TelaAjuda() {
+export default function TelaAjuda({ navigation }) {
   const [nomeContato, setNomeContato] = useState('');
   const [numeroContato, setNumeroContato] = useState('');
 
@@ -26,9 +25,8 @@ export default function TelaAjuda() {
     'http://localhost/axon_api/salvar_contato.php';
 
   const URL_BUSCAR =
-  'http://localhost/axon_api/buscar_contato.php?id_usuario=1';
+    'http://localhost/axon_api/buscar_contato.php?id_usuario=1';
 
-    
   useEffect(() => {
     carregarContato();
   }, []);
@@ -96,17 +94,22 @@ export default function TelaAjuda() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={true}
       >
+        {/* BOTÃO VOLTAR */}
+        <TouchableOpacity
+          style={styles.botaoVoltar}
+          onPress={() => navigation.navigate('TelaUsuario')}
+        >
+          <Ionicons name="arrow-back" size={24} color="#4B3FAF" />
+          <Text style={styles.textoVoltar}>Voltar</Text>
+        </TouchableOpacity>
+
         <Text style={styles.titulo}>
           Ajuda & Emergência
         </Text>
 
         <View style={styles.card}>
           <View style={styles.iconBox}>
-            <Ionicons
-              name="call-outline"
-              size={35}
-              color="#8B6DFF"
-            />
+            <Ionicons name="call-outline" size={35} color="#8B6DFF" />
           </View>
 
           <Text style={styles.cardTitulo}>
@@ -114,8 +117,7 @@ export default function TelaAjuda() {
           </Text>
 
           <Text style={styles.cardTexto}>
-            O CVV oferece apoio emocional gratuito
-            24 horas por dia.
+            O CVV oferece apoio emocional gratuito 24 horas por dia.
           </Text>
 
           <Text style={styles.numeroCVV}>
@@ -126,11 +128,7 @@ export default function TelaAjuda() {
             style={styles.botaoCVV}
             onPress={ligarCVV}
           >
-            <Ionicons
-              name="call"
-              size={18}
-              color="#fff"
-            />
+            <Ionicons name="call" size={18} color="#fff" />
             <Text style={styles.textoBotao}>
               Ligar para o CVV
             </Text>
@@ -171,11 +169,7 @@ export default function TelaAjuda() {
             style={styles.botaoSalvar}
             onPress={salvarContato}
           >
-            <Ionicons
-              name="save-outline"
-              size={18}
-              color="#fff"
-            />
+            <Ionicons name="save-outline" size={18} color="#fff" />
             <Text style={styles.textoBotao}>
               Salvar contato
             </Text>
@@ -200,11 +194,7 @@ export default function TelaAjuda() {
               style={styles.botaoEmergencia}
               onPress={ligarContato}
             >
-              <Ionicons
-                name="call"
-                size={20}
-                color="#fff"
-              />
+              <Ionicons name="call" size={20} color="#fff" />
               <Text style={styles.textoBotao}>
                 Ligar Agora
               </Text>
@@ -222,10 +212,7 @@ const styles = StyleSheet.create({
     height: SCREEN_HEIGHT,
     maxHeight: SCREEN_HEIGHT,
     backgroundColor: '#F7F7FB',
-    paddingTop:
-      Platform.OS === 'android'
-        ? StatusBar.currentHeight
-        : 0,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
 
   scrollView: {
@@ -237,6 +224,19 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     paddingBottom: 50,
+  },
+
+  botaoVoltar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+
+  textoVoltar: {
+    marginLeft: 6,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4B3FAF',
   },
 
   titulo: {
