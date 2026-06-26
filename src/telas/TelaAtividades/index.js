@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   Text,
@@ -11,16 +12,45 @@ import {
 
 export default function TelaAtividades({ navigation }) {
 
-  const [atividades, setAtividades] = useState([
-    { id: 1, nome: 'Fazer exercício físico', concluida: false },
-    { id: 2, nome: 'Beber água', concluida: true },
-    { id: 3, nome: 'Dormir cedo', concluida: false },
-    { id: 4, nome: 'Tomar medicação', concluida: false },
-    { id: 5, nome: 'Meditar 10 minutos', concluida: false },
-    { id: 6, nome: 'Comer frutas', concluida: true },
-  ]);
+  const [atividades, setAtividades] = useState([]);
 
-  // ✅ TOGGLE LOCAL (CORRIGIDO)
+  useEffect(() => {
+    carregarAtividades();
+  }, []);
+
+  const carregarAtividades = async () => {
+    try {
+      const dados = await AsyncStorage.getItem("atividades");
+
+      if (dados) {
+        const parsed = JSON.parse(dados);
+
+        // garante que tudo vira boolean
+        const normalizado = parsed.map(item => ({
+          ...item,
+          concluida: !!item.concluida
+        }));
+
+        setAtividades(normalizado);
+      } else {
+        // padrão inicial
+        const iniciais = [
+          { id: 1, nome: 'Fazer exercício físico', concluida: false },
+          { id: 2, nome: 'Beber água', concluida: false },
+          { id: 3, nome: 'Dormir cedo', concluida: false },
+          { id: 4, nome: 'Tomar medicação', concluida: false },
+          { id: 5, nome: 'Meditar 10 minutos', concluida: false },
+          { id: 6, nome: 'Comer frutas', concluida: false },
+        ];
+
+        setAtividades(iniciais);
+        AsyncStorage.setItem("atividades", JSON.stringify(iniciais));
+      }
+    } catch (erro) {
+      console.log(erro);
+    }
+  };
+
   const toggleAtividade = (id) => {
     const novas = atividades.map(item =>
       item.id === id
@@ -29,35 +59,32 @@ export default function TelaAtividades({ navigation }) {
     );
 
     setAtividades(novas);
+    AsyncStorage.setItem("atividades", JSON.stringify(novas));
   };
 
-  // 🔥 ENVIAR PRO BANCO
-  // 🔥 ENVIAR PRO BANCO (toggle_atividade.php)
-const cadastrarAtividades = async () => {
-  try {
-    for (const item of atividades) {
-      const form = new FormData();
-      form.append("id_usuario", 1); // coloca o usuário logado aqui
-      form.append("id_atividade", item.id);
-      form.append("concluida", item.concluida ? 1 : 0);
+  const cadastrarAtividades = async () => {
+    try {
+      for (const item of atividades) {
+        const form = new FormData();
+        form.append("id_usuario", 1);
+        form.append("id_atividade", item.id);
+        form.append("concluida", item.concluida ? 1 : 0);
 
-      const res = await fetch("http://localhost/axon_api/toggle_atividade.php", {
-        method: "POST",
-        body: form,
-      });
+        await fetch("http://localhost/axon_api/toggle_atividade.php", {
+          method: "POST",
+          body: form,
+        });
+      }
 
-      console.log(await res.text());
+      Alert.alert("Sucesso", "Atividades salvas!");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Erro", "Falha ao salvar");
     }
-
-    Alert.alert("Sucesso", "Atividades salvas!");
-  } catch (error) {
-    console.log(error);
-    Alert.alert("Erro", "Falha ao salvar");
-  }
-};
+  };
 
   const concluidas = atividades.filter(item => item.concluida).length;
-  const progresso = (concluidas / atividades.length) * 100;
+  const progresso = atividades.length ? (concluidas / atividades.length) * 100 : 0;
 
   return (
     <ImageBackground
@@ -65,16 +92,10 @@ const cadastrarAtividades = async () => {
       style={styles.background}
       resizeMode="cover"
     >
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scroll}>
 
         <Text style={styles.titulo}>Atividades</Text>
 
-        {/* PROGRESSO */}
         <View style={styles.cardProgresso}>
           <Text style={styles.textoProgresso}>Seu progresso hoje</Text>
           <Text style={styles.numeroProgresso}>
@@ -90,18 +111,9 @@ const cadastrarAtividades = async () => {
           </Text>
         </View>
 
-        {/* STREAK */}
-        <View style={styles.cardStreak}>
-          <Text style={styles.streakTitulo}>Sequência 🔥</Text>
-          <Text style={styles.streakTexto}>
-            Você manteve 4 dias seguidos!
-          </Text>
-        </View>
-
-        {/* LISTA */}
         <Text style={styles.subtitulo}>Atividades do dia</Text>
 
-        {atividades.map((item) => (
+        {atividades.map(item => (
           <TouchableOpacity
             key={item.id}
             style={[
@@ -117,36 +129,21 @@ const cadastrarAtividades = async () => {
           </TouchableOpacity>
         ))}
 
-        {/* SUGESTÃO */}
-        <View style={styles.cardSugestao}>
-          <Text style={styles.sugestaoTitulo}>Sugestão do dia 💡</Text>
-          <Text style={styles.sugestaoTexto}>
-            Faça uma caminhada de 15 minutos.
-          </Text>
-        </View>
-
-        {/* BOTÃO CADASTRAR */}
         <TouchableOpacity
           style={[styles.botao, { backgroundColor: '#6d9c7b' }]}
           onPress={cadastrarAtividades}
         >
-          <Text style={styles.textoBotao}>
-            Cadastrar no banco
-          </Text>
+          <Text style={styles.textoBotao}>Cadastrar no banco</Text>
         </TouchableOpacity>
 
-        {/* VOLTAR */}
         <TouchableOpacity
           style={styles.botao}
           onPress={() => navigation.navigate('Tela1')}
         >
-          <Text style={styles.textoBotao}>
-            Voltar
-          </Text>
+          <Text style={styles.textoBotao}>Voltar</Text>
         </TouchableOpacity>
 
       </ScrollView>
-
     </ImageBackground>
   );
 }

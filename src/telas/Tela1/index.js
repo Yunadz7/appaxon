@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
-  View,
   Text,
+  View,
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
@@ -11,8 +13,44 @@ import {
 
 export default function Tela1({ navigation }) {
 
-  return (
+  const [atividades, setAtividades] = useState([]);
+  const [nome, setNome] = useState("Usuário");
 
+  useEffect(() => {
+    carregarUsuario();
+    carregarAtividades();
+  }, []);
+
+  const carregarAtividades = async () => {
+    try {
+      const dados = await AsyncStorage.getItem("atividades");
+
+      if (dados) {
+        setAtividades(JSON.parse(dados));
+      }
+    } catch (erro) {
+      console.log(erro);
+    }
+  };
+
+  const carregarUsuario = async () => {
+    try {
+      const dados = await AsyncStorage.getItem("usuario");
+
+      if (dados) {
+        const usuario = JSON.parse(dados);
+        setNome(usuario.nome);
+      }
+    } catch (erro) {
+      console.log(erro);
+    }
+  };
+
+  const pendentes = atividades.filter(
+    item => item.concluida == false || item.concluida == 0 || item.concluida === undefined
+  );
+
+  return (
     <ImageBackground
       source={require('../../../assets/img_fundo.png')}
       style={styles.background}
@@ -21,7 +59,6 @@ export default function Tela1({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* BOTÃO MENU */}
         <TouchableOpacity
           style={styles.botaoMenu}
           onPress={() => navigation.openDrawer()}
@@ -29,110 +66,77 @@ export default function Tela1({ navigation }) {
           <Text style={styles.textoMenu}>☰</Text>
         </TouchableOpacity>
 
-        {/* LOGO */}
         <Image
           source={require('../../../assets/logo.png')}
           style={styles.logo}
         />
 
-        {/* TEXTO */}
         <Text style={styles.textoBomDia}>
-          Olá, Usuário
+          Olá, {nome}
         </Text>
 
-        {/* PRIMEIRA LINHA */}
+        {/* CARDS FIXOS */}
         <View style={styles.linhaCards}>
 
-          {/* CONSULTA */}
           <TouchableOpacity
             style={styles.cardVerde}
             onPress={() => navigation.navigate('TelaConsulta')}
           >
-
-            <Text style={styles.textoCard}>
-              Consulta
-            </Text>
-
+            <Text style={styles.textoCard}>Consulta</Text>
           </TouchableOpacity>
 
-          {/* ATIVIDADES */}
           <TouchableOpacity
             style={styles.cardAzul}
             onPress={() => navigation.navigate('TelaAtividades')}
           >
-
-            <Text style={styles.textoCard}>
-              Atividades
-            </Text>
-
+            <Text style={styles.textoCard}>Atividades</Text>
           </TouchableOpacity>
 
         </View>
 
-        {/* SEGUNDA LINHA */}
         <View style={styles.linhaCards}>
 
-          {/* REGISTRO */}
           <TouchableOpacity
             style={styles.cardCinza}
             onPress={() => navigation.navigate('TelaRegistro')}
           >
-
-            <Text style={styles.textoCard}>
-              Registro{"\n"}
-            </Text>
-
+            <Text style={styles.textoCard}>Registro</Text>
           </TouchableOpacity>
 
-          {/* NOVIDADES */}
           <TouchableOpacity
             style={styles.cardRoxo}
             onPress={() => navigation.navigate('TelaNovidades')}
           >
-
-            <Text style={styles.textoCard}>
-              Novidades{"\n"}
-               e dicas
-            </Text>
-
+            <Text style={styles.textoCard}>Novidades e dicas</Text>
           </TouchableOpacity>
 
         </View>
 
-        {/* TITULO */}
+        {/* SUGESTÕES */}
         <Text style={styles.tituloSugestao}>
           Sugestões →
         </Text>
 
-        {/* CARD 1 */}
-        <TouchableOpacity style={styles.cardSugestao}>
-
-          <Text style={styles.textoSugestao}>
-            Fazer exercício físico
+        {pendentes.length === 0 ? (
+          <Text style={{ textAlign: 'center', marginTop: 20, color: '#666' }}>
+            Nenhuma atividade pendente 🎉
           </Text>
+        ) : (
+          pendentes.map(item => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.cardSugestao}
+            >
+              <Text style={styles.textoSugestao}>
+                {item.nome}
+              </Text>
 
-          <View style={styles.hojeBox}>
-            <Text style={styles.textoHoje}>
-              Hoje
-            </Text>
-          </View>
-
-        </TouchableOpacity>
-
-        {/* CARD 2 */}
-        <TouchableOpacity style={styles.cardSugestao}>
-
-          <Text style={styles.textoSugestao}>
-            Enviar relatório diário
-          </Text>
-
-          <View style={styles.hojeBox}>
-            <Text style={styles.textoHoje}>
-              Hoje
-            </Text>
-          </View>
-
-        </TouchableOpacity>
+              <View style={styles.hojeBox}>
+                <Text style={styles.textoHoje}>Hoje</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
 
       </ScrollView>
 

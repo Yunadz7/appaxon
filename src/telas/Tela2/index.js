@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   Text,
@@ -41,7 +42,14 @@ export default function Tela2({ navigation }) {
 
         Alert.alert("Sucesso", json.mensagem);
 
+        await AsyncStorage.setItem(
+          "usuario",
+          JSON.stringify(json.usuario)
+        );
+
         navigation.navigate("Tela1");
+
+  
 
       } else {
 
