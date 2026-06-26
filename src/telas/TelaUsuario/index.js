@@ -15,13 +15,29 @@ export default function TelaUsuario({ navigation }) {
     <View style={styles.container}>
 
       {/* BOTÃO MENU (DRAWER) */}
-      <TouchableOpacity
-        style={styles.botaoMenu}
-        onPress={() => navigation.openDrawer()}
-      >
-        <Text style={styles.textoMenu}>☰</Text>
-      </TouchableOpacity>
-
+      
+      {/* BOTÃO MENU (DRAWER) */}
+<TouchableOpacity
+  style={styles.botaoMenu}
+  onPress={() => {
+    // Procura o navegador pai (o Drawer) para forçar a abertura
+    const drawerPai = navigation.getParent();
+    
+    if (drawerPai && typeof drawerPai.openDrawer === 'function') {
+      drawerPai.openDrawer();
+    } else {
+      // Se ele perder a referência por completo na volta, recarrega o Drawer
+      navigation.navigate('Tela1', { screen: 'TelaUsuario' });
+      
+      // Um pequeno delay para dar tempo de renderizar e abrir o menu
+      setTimeout(() => {
+        navigation.openDrawer();
+      }, 50);
+    }
+  }}
+>
+  <Text style={styles.textoMenu}>☰</Text>
+</TouchableOpacity>
       {/* HEADER */}
       <View style={styles.header}>
         <Ionicons name="notifications-outline" size={24} color="#333" />

@@ -7,6 +7,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 /* TELAS */
+
 import Principal from './src/telas/Principal';
 import Tabs from './src/telas/Tabs';
 
@@ -37,7 +38,7 @@ function DrawerRoutes() {
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
-        // Desativamos temporariamente os gestos nativos do Drawer para evitar conflitos de deslize nas telas internas
+        // Mantido exatamente como você deixou
         swipeEnabled: false,
         gestureEnabled: false,
         drawerStyle: {
@@ -47,7 +48,8 @@ function DrawerRoutes() {
       }}
     >
       <Drawer.Screen name="Home" component={Tela1} />
-      <Drawer.Screen name="Perfil" component={TelaUsuario} />
+      {/* Mudado aqui apenas para coincidir com o componente */}
+      <Drawer.Screen name="TelaUsuario" component={TelaUsuario} />
     </Drawer.Navigator>
   );
 }
@@ -55,7 +57,6 @@ function DrawerRoutes() {
 /* COMPONENTE PRINCIPAL (App) */
 export default function App() {
   return (
-    // O flex: 1 aqui garante que todo o sistema de navegação e as telas internas ocupem 100% da altura do ecrã
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator
@@ -75,6 +76,7 @@ export default function App() {
           <Stack.Screen name="Tela6" component={Tela6} />
           <Stack.Screen name="Tela7" component={Tela7} />
 
+          {/* Suas telas originais intactas abaixo */}
           <Stack.Screen name="TelaUsuario" component={TelaUsuario} />
           <Stack.Screen name="TelaAtividades" component={TelaAtividades} />
           <Stack.Screen name="TelaConsulta" component={TelaConsulta} />
