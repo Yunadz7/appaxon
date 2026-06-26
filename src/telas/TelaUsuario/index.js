@@ -40,7 +40,7 @@ export default function TelaUsuario({ navigation }) {
 </TouchableOpacity>
       {/* HEADER */}
       <View style={styles.header}>
-        <Ionicons name="notifications-outline" size={24} color="#333" />
+
         <Ionicons name="settings-outline" size={24} color="#333" />
       </View>
 
@@ -60,7 +60,7 @@ export default function TelaUsuario({ navigation }) {
           style={styles.card}
           onPress={() => navigation.navigate('TelaBemEstar')}
         >
-          <Text style={styles.cardTitle}>Meu Bem-estar hoje</Text>
+          <Text style={styles.cardTitle}>Meu Bem-estar semanal</Text>
 
           <View style={styles.moods}>
             <Text>😊</Text>
@@ -71,15 +71,7 @@ export default function TelaUsuario({ navigation }) {
         </TouchableOpacity>
 
         {/* RESUMO */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Resumo da semana</Text>
-
-          <View style={styles.row}>
-            <Text>📊 4 registros</Text>
-            <Text>💙 3 exercícios</Text>
-            <Text>⏱️ 12 min</Text>
-          </View>
-        </View>
+       
 
         {/* MENU */}
         <View style={styles.menuCard}>
@@ -167,6 +159,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
+    marginLeft: 350,
   },
 
   avatarBox: {

@@ -92,8 +92,7 @@ export default function Tela1({ navigation }) {
 
             <Text style={styles.textoCard}>
               Novidades{"\n"}
-              Atualizações e{"\n"}
-              dicas
+               e dicas
             </Text>
 
           </TouchableOpacity>
@@ -150,7 +149,7 @@ const styles = StyleSheet.create({
   },
 
   botaoMenu: {
-    marginTop: 50,
+    marginTop: 20,
     marginLeft: 20,
     width: 45,
     height: 45,
@@ -169,10 +168,10 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 120,
-    height: 80,
+    width: 370,
+    height: 200,
     resizeMode: 'contain',
-    marginTop: 70,
+    marginTop: -30,
     marginLeft: 20,
   },
 
