@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,102 +12,230 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 export default function TelaBemEstar({ navigation }) {
-  const registos = [
-    { id: '1', emoji: "😟", data: "Hoje, 12/05", humor: "Ansioso", assunto: "Trabalho, estudos", nota: "7/10" },
-    { id: '2', emoji: "😊", data: "Ontem, 11/05", humor: "Tranquilo", assunto: "Família", nota: "5/10" },
-    { id: '3', emoji: "😡", data: "10/05", humor: "Estressado", assunto: "Provas", nota: "8/10" },
-    { id: '4', emoji: "😴", data: "09/05", humor: "Relaxado", assunto: "Fim de semana", nota: "3/10" },
-    { id: '5', emoji: "😰", data: "08/05", humor: "Muito ansioso", assunto: "Entrevista", nota: "9/10" },
-  ];
+
+  const [registos, setRegistos] = useState([]);
+  const [mediaAnsiedade, setMediaAnsiedade] = useState(0);
+
+  useEffect(() => {
+    buscarRegistros();
+  }, []);
+
+  async function buscarRegistros() {
+    try {
+
+      const response = await fetch(
+        "http://localhost/axon_api/buscarRegistro.php"
+      );
+
+      const json = await response.json();
+
+      if (json.sucesso) {
+
+        setRegistos(json.registros);
+
+        if (json.registros.length > 0) {
+
+          let soma = 0;
+
+          json.registros.forEach(item => {
+            soma += Number(item.ansiedade);
+          });
+
+          setMediaAnsiedade(
+            (soma / json.registros.length).toFixed(1)
+          );
+
+        } else {
+
+          setMediaAnsiedade(0);
+
+        }
+
+      }
+
+    } catch (erro) {
+      console.log(erro);
+    }
+  }
+
+  function emojiHumor(humor) {
+
+    switch (humor) {
+
+      case "Feliz":
+        return "😄";
+
+      case "Neutro":
+        return "😐";
+
+      case "Triste":
+        return "😔";
+
+      case "Irritado":
+        return "😡";
+
+      default:
+        return "😐";
+    }
+
+  }
 
   return (
 
-    
     <View style={styles.container}>
-       <ScrollView
-         
-              showsVerticalScrollIndicator={true}
-            >
-      <StatusBar barStyle="dark-content" backgroundColor="#F4F6FF" />
 
-      {/* HEADER: Fixo no topo */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation?.goBack()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Ionicons name="arrow-back" size={24} color="#5B4FCF" />
-        </TouchableOpacity>
+      <ScrollView
+        showsVerticalScrollIndicator={true}
+      >
 
-        <Text style={styles.headerTitle}>Histórico</Text>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor="#F4F6FF"
+        />
 
-        <Ionicons name="options-outline" size={24} color="#5B4FCF" />
-      </View>
+        <View style={styles.header}>
 
-     
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+          >
 
-        {/* RESUMO */}
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color="#5B4FCF"
+            />
+
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>
+            Histórico
+          </Text>
+
+          <Ionicons
+            name="options-outline"
+            size={24}
+            color="#5B4FCF"
+          />
+
+        </View>
+
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Os teus últimos 7 dias</Text>
+
+          <Text style={styles.sectionTitle}>
+            Os teus últimos registros
+          </Text>
 
           <View style={styles.statsRow}>
-            <View style={styles.stat}>
-              <Text style={styles.statNumber}>4</Text>
-              <Text style={styles.statLabel}>Registos</Text>
-            </View>
 
             <View style={styles.stat}>
-              <Text style={styles.statNumber}>7</Text>
-              <Text style={styles.statLabel}>Média de ansiedade</Text>
-            </View>
 
-            <View style={styles.stat}>
-              <Text style={[styles.statNumber, { color: '#FF4D6D' }]}>
-                ↑ 10%
+              <Text style={styles.statNumber}>
+                {registos.length}
               </Text>
-              <Text style={styles.statLabel}>Semana passada</Text>
+
+              <Text style={styles.statLabel}>
+                Registros
+              </Text>
+
             </View>
+
+            <View style={styles.stat}>
+
+              <Text style={styles.statNumber}>
+                {mediaAnsiedade}
+              </Text>
+
+              <Text style={styles.statLabel}>
+                Média ansiedade
+              </Text>
+
+            </View>
+
+            <View style={styles.stat}>
+
+              <Text
+                style={[
+                  styles.statNumber,
+                  { color: '#5B4FCF' }
+                ]}
+              >
+                {
+                  registos.length > 0
+                    ? registos[0].ansiedade
+                    : 0
+                }/10
+              </Text>
+
+              <Text style={styles.statLabel}>
+                Último registro
+              </Text>
+
+            </View>
+
           </View>
+
         </View>
 
-        {/* GRÁFICO */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Evolução da ansiedade</Text>
 
-          <View style={styles.graphArea}>
-            <Text style={styles.graphText}>📈 Gráfico da ansiedade</Text>
-            <Text style={styles.graphSub}>
-              (adiciona uma biblioteca de gráficos depois)
-            </Text>
-          </View>
-        </View>
 
-        {/* REGISTOS */}
-        <Text style={styles.registroTitulo}>Os teus registos</Text>
+        <Text style={styles.registroTitulo}>
+          Histórico
+        </Text>
 
         <View style={styles.card}>
-          {registos.map((item, index) => (
-            <View
-              key={item.id}
-              style={[
-                styles.registroItem,
-                index === registos.length - 1 && { borderBottomWidth: 0 }
-              ]}
-            >
-              <Text style={styles.emoji}>{item.emoji}</Text>
 
-              <View style={styles.registroInfo}>
-                <Text style={styles.data}>{item.data}</Text>
-                <Text style={styles.assunto}>
-                  {item.humor} • {item.assunto}
+          {
+            registos.map((item, index) => (
+
+              <View
+                key={item.id_registro}
+                style={[
+                  styles.registroItem,
+                  index === registos.length - 1 && {
+                    borderBottomWidth: 0
+                  }
+                ]}
+              >
+
+                <Text style={styles.emoji}>
+                  {emojiHumor(item.emocoes)}
                 </Text>
+
+                <View style={styles.registroInfo}>
+
+                  <Text style={styles.data}>
+                    {item.data_registro}
+                  </Text>
+
+                  <Text style={styles.assunto}>
+                    {item.emocoes} • {item.observacoes}
+                  </Text>
+
+                </View>
+
+                <Text style={styles.nota}>
+                  {item.ansiedade}/10
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('TelaDetalheRegistro', {
+                      registro: item
+                    })
+                  }
+                >
+                  <Ionicons name="chevron-forward" size={18} color="#999" />
+                </TouchableOpacity>
+
               </View>
 
-              <Text style={styles.nota}>{item.nota}</Text>
+            ))
+          }
 
-              <Ionicons name="chevron-forward" size={18} color="#999" />
-            </View>
-          ))}
         </View>
 
       </ScrollView>
+
     </View>
   );
 }
@@ -128,7 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F6FF',
   },
 
- scroll: {
+  scroll: {
     paddingBottom: 120,
   },
 

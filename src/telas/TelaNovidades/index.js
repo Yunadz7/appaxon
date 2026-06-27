@@ -25,7 +25,7 @@ export default function TelaNovidades({ navigation }) {
       >
 
         <Text style={styles.titulo}>
-          Novidades & Atualizações
+          Novidades & Dicas
         </Text>
 
         {/* dica */}
