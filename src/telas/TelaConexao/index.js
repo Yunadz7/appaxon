@@ -119,7 +119,7 @@ export default function TelaConexao({ navigation }) {
           />
 
           <TouchableOpacity style={styles.button} onPress={conectarDispositivo}>
-            <Ionicons name="bluetooth" size={20} color="#fff" />
+            
             <Text style={styles.buttonText}>
               Conectar dispositivo
             </Text>

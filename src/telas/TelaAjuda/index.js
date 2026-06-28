@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,199 +8,109 @@ import {
   ScrollView,
   SafeAreaView,
   Linking,
-  Dimensions,
   Platform,
   StatusBar,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 export default function TelaAjuda({ navigation }) {
   const [nomeContato, setNomeContato] = useState('');
   const [numeroContato, setNumeroContato] = useState('');
+  const [contatos, setContatos] = useState([]);
 
-  const URL_SALVAR =
-    'http://localhost/axon_api/salvar_contato.php';
-
-  const URL_BUSCAR =
-    'http://localhost/axon_api/buscar_contato.php?id_usuario=1';
-
-  useEffect(() => {
-    carregarContato();
-  }, []);
-
-  async function salvarContato() {
+  function salvarContato() {
     if (!nomeContato || !numeroContato) {
       alert('Preencha todos os campos');
       return;
     }
 
-    try {
-      const resposta = await fetch(URL_SALVAR, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id_usuario: 1,
-          nome_contato: nomeContato,
-          numero: numeroContato,
-        }),
-      });
+    const novoContato = {
+      id: Date.now(),
+      nome: nomeContato,
+      numero: numeroContato,
+    };
 
-      const dados = await resposta.json();
+    setContatos((prev) => [novoContato, ...prev]);
 
-      if (dados.sucesso) {
-        alert('Contato salvo com sucesso!');
-      } else {
-        alert(dados.mensagem);
-      }
-    } catch (erro) {
-      console.log(erro);
-      alert('Erro ao conectar ao servidor');
-    }
-  }
-
-  async function carregarContato() {
-    try {
-      const resposta = await fetch(URL_BUSCAR);
-      const dados = await resposta.json();
-
-      if (dados.sucesso) {
-        setNomeContato(dados.nome);
-        setNumeroContato(dados.telefone);
-      }
-    } catch (erro) {
-      console.log(erro);
-    }
+    setNomeContato('');
+    setNumeroContato('');
   }
 
   function ligarCVV() {
     Linking.openURL('tel:188');
   }
 
-  function ligarContato() {
-    if (numeroContato !== '') {
-      Linking.openURL(`tel:${numeroContato}`);
-    }
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={true}
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        {/* BOTÃO VOLTAR */}
+        {/* VOLTAR */}
         <TouchableOpacity
           style={styles.botaoVoltar}
-          onPress={() => navigation.navigate('TelaUsuario')}
+          onPress={() => navigation && navigation.navigate('TelaUsuario')}
         >
           <Ionicons name="arrow-back" size={24} color="#4B3FAF" />
           <Text style={styles.textoVoltar}>Voltar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.titulo}>
-          Ajuda & Emergência
-        </Text>
+        <Text style={styles.titulo}>Ajuda & Emergência</Text>
 
+        {/* CVV */}
         <View style={styles.card}>
-          <View style={styles.iconBox}>
-            <Ionicons name="call-outline" size={35} color="#8B6DFF" />
-          </View>
+          <Text style={styles.cardTitulo}>CVV</Text>
+          <Text style={styles.cardTexto}>Apoio emocional 24h</Text>
 
-          <Text style={styles.cardTitulo}>
-            Centro de Valorização da Vida
-          </Text>
+          <Text style={styles.numeroCVV}>188</Text>
 
-          <Text style={styles.cardTexto}>
-            O CVV oferece apoio emocional gratuito 24 horas por dia.
-          </Text>
-
-          <Text style={styles.numeroCVV}>
-            Ligue 188
-          </Text>
-
-          <TouchableOpacity
-            style={styles.botaoCVV}
-            onPress={ligarCVV}
-          >
-            <Ionicons name="call" size={18} color="#fff" />
-            <Text style={styles.textoBotao}>
-              Ligar para o CVV
-            </Text>
+          <TouchableOpacity style={styles.botaoCVV} onPress={ligarCVV}>
+            <Text style={styles.textoBotao}>Ligar</Text>
           </TouchableOpacity>
         </View>
 
+        {/* FORM */}
         <View style={styles.card}>
-          <Text style={styles.cardTitulo}>
-            Contato de Emergência
-          </Text>
-
-          <Text style={styles.label}>
-            Nome do contato
-          </Text>
+          <Text style={styles.cardTitulo}>Contato de Emergência</Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Digite o nome"
-            placeholderTextColor="#999"
+            placeholder="Nome"
             value={nomeContato}
             onChangeText={setNomeContato}
           />
 
-          <Text style={styles.label}>
-            Número de telefone
-          </Text>
-
           <TextInput
             style={styles.input}
-            placeholder="(00) 00000-0000"
-            placeholderTextColor="#999"
-            keyboardType="phone-pad"
+            placeholder="Número"
             value={numeroContato}
             onChangeText={setNumeroContato}
+            keyboardType="phone-pad"
           />
 
-          <TouchableOpacity
-            style={styles.botaoSalvar}
-            onPress={salvarContato}
-          >
-            <Ionicons name="save-outline" size={18} color="#fff" />
-            <Text style={styles.textoBotao}>
-              Salvar contato
-            </Text>
+          <TouchableOpacity style={styles.botaoSalvar} onPress={salvarContato}>
+            <Text style={styles.textoBotao}>Salvar contato</Text>
           </TouchableOpacity>
         </View>
 
-        {numeroContato !== '' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitulo}>
-              Contato Salvo
-            </Text>
+        {/* LISTA */}
+        {contatos.map((item) => (
+          <View key={item.id} style={styles.card}>
+            <Text style={styles.cardTitulo}>Contato Salvo</Text>
 
-            <Text style={styles.contatoNome}>
-              {nomeContato}
-            </Text>
-
-            <Text style={styles.contatoNumero}>
-              {numeroContato}
-            </Text>
+            <Text style={styles.contatoNome}>{item.nome}</Text>
+            <Text style={styles.contatoNumero}>{item.numero}</Text>
 
             <TouchableOpacity
               style={styles.botaoEmergencia}
-              onPress={ligarContato}
+              onPress={() => Linking.openURL(`tel:${item.numero}`)}
             >
-              <Ionicons name="call" size={20} color="#fff" />
-              <Text style={styles.textoBotao}>
-                Ligar Agora
-              </Text>
+              <Text style={styles.textoBotao}>Ligar Agora</Text>
             </TouchableOpacity>
           </View>
-        )}
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -209,21 +119,18 @@ export default function TelaAjuda({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: SCREEN_HEIGHT,
-    maxHeight: SCREEN_HEIGHT,
     backgroundColor: '#F7F7FB',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
 
-  scrollView: {
+  scroll: {
     flex: 1,
-    width: '100%',
   },
 
-  scrollContainer: {
-    flexGrow: 1,
+  scrollContent: {
     padding: 20,
-    paddingBottom: 50,
+    paddingBottom: 200,
+    flexGrow: 1, // 🔥 ISSO AQUI É O QUE FAZ ROLAR NO WEB
   },
 
   botaoVoltar: {
@@ -234,7 +141,6 @@ const styles = StyleSheet.create({
 
   textoVoltar: {
     marginLeft: 6,
-    fontSize: 16,
     fontWeight: 'bold',
     color: '#4B3FAF',
   },
@@ -242,108 +148,75 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 20,
-    marginTop: 10,
   },
 
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
     padding: 20,
+    borderRadius: 20,
     marginBottom: 20,
-    elevation: 2,
-  },
-
-  iconBox: {
-    alignSelf: 'center',
-    backgroundColor: '#F0EBFF',
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
+    marginTop:-20,
   },
 
   cardTitulo: {
-    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
     textAlign: 'center',
-    marginBottom: 10,
   },
 
   cardTexto: {
-    fontSize: 14,
-    color: '#666',
     textAlign: 'center',
-    marginBottom: 15,
+    color: '#666',
   },
 
   numeroCVV: {
+    textAlign: 'center',
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#8B6DFF',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-
-  botaoCVV: {
-    backgroundColor: '#8B6DFF',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-  },
-
-  label: {
-    marginTop: 15,
-    marginBottom: 6,
-    fontWeight: '600',
+    marginVertical: 10,
   },
 
   input: {
-    backgroundColor: '#F3F2F7',
-    borderRadius: 10,
+    backgroundColor: '#eee',
     padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
   },
 
   botaoSalvar: {
     backgroundColor: '#4B3FAF',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 15,
+  },
+
+  botaoCVV: {
+    backgroundColor: '#8B6DFF',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+
+  botaoEmergencia: {
+    backgroundColor: '#E53935',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+
+  textoBotao: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 
   contatoNome: {
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 16,
   },
 
   contatoNumero: {
     textAlign: 'center',
     color: '#666',
-    marginVertical: 10,
-  },
-
-  botaoEmergencia: {
-    backgroundColor: '#E53935',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-  },
-
-  textoBotao: {
-    color: '#fff',
-    fontWeight: 'bold',
-    marginLeft: 8,
   },
 });

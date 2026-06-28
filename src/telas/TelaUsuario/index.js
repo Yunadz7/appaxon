@@ -15,29 +15,29 @@ export default function TelaUsuario({ navigation }) {
     <View style={styles.container}>
 
       {/* BOTÃO MENU (DRAWER) */}
-      
+
       {/* BOTÃO MENU (DRAWER) */}
-<TouchableOpacity
-  style={styles.botaoMenu}
-  onPress={() => {
-    // Procura o navegador pai (o Drawer) para forçar a abertura
-    const drawerPai = navigation.getParent();
-    
-    if (drawerPai && typeof drawerPai.openDrawer === 'function') {
-      drawerPai.openDrawer();
-    } else {
-      // Se ele perder a referência por completo na volta, recarrega o Drawer
-      navigation.navigate('Tela1', { screen: 'TelaUsuario' });
-      
-      // Um pequeno delay para dar tempo de renderizar e abrir o menu
-      setTimeout(() => {
-        navigation.openDrawer();
-      }, 50);
-    }
-  }}
->
-  <Text style={styles.textoMenu}>☰</Text>
-</TouchableOpacity>
+      <TouchableOpacity
+        style={styles.botaoMenu}
+        onPress={() => {
+          // Procura o navegador pai (o Drawer) para forçar a abertura
+          const drawerPai = navigation.getParent();
+
+          if (drawerPai && typeof drawerPai.openDrawer === 'function') {
+            drawerPai.openDrawer();
+          } else {
+            // Se ele perder a referência por completo na volta, recarrega o Drawer
+            navigation.navigate('Tela1', { screen: 'TelaUsuario' });
+
+            // Um pequeno delay para dar tempo de renderizar e abrir o menu
+            setTimeout(() => {
+              navigation.openDrawer();
+            }, 50);
+          }
+        }}
+      >
+        <Text style={styles.textoMenu}>☰</Text>
+      </TouchableOpacity>
       {/* HEADER */}
       <View style={styles.header}>
 
@@ -71,7 +71,7 @@ export default function TelaUsuario({ navigation }) {
         </TouchableOpacity>
 
         {/* RESUMO */}
-       
+
 
         {/* MENU */}
         <View style={styles.menuCard}>
@@ -92,6 +92,12 @@ export default function TelaUsuario({ navigation }) {
             icon="log-out-outline"
             text="Sair"
             danger
+            onPress={() => {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Principal' }],
+              });
+            }}
           />
 
         </View>
@@ -140,7 +146,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 12,
-    
+
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999,

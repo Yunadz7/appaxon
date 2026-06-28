@@ -125,7 +125,7 @@ export default function TelaDispositivo() {
                 style={styles.connectButton}
                 onPress={() => navigation.navigate('TelaConexao')}
               >
-                <Ionicons name="bluetooth-outline" size={18} color="#fff" />
+                
                 <Text style={styles.connectButtonText}>
                   Conectar novo dispositivo
                 </Text>
