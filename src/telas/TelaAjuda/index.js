@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   View,
   Text,
@@ -10,70 +13,184 @@ import {
   Linking,
   Platform,
   StatusBar,
+  Alert,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 export default function TelaAjuda({ navigation }) {
+
   const [nomeContato, setNomeContato] = useState('');
   const [numeroContato, setNumeroContato] = useState('');
   const [contatos, setContatos] = useState([]);
+  const [idUsuario, setIdUsuario] = useState(null);
 
-  function salvarContato() {
+  // PEGAR USUÁRIO LOGADO
+  useEffect(() => {
+    carregarUsuario();
+  }, []);
+
+  const carregarUsuario = async () => {
+    try {
+
+      const dados = await AsyncStorage.getItem('usuario');
+
+      if (dados) {
+
+        const usuario = JSON.parse(dados);
+
+        setIdUsuario(usuario.id_usuario);
+
+      }
+
+    } catch (erro) {
+
+      console.log('Erro ao carregar usuário:', erro);
+
+    }
+  };
+
+
+  // SALVAR CONTATO NO BANCO
+  const salvarContato = async () => {
+
     if (!nomeContato || !numeroContato) {
-      alert('Preencha todos os campos');
+      Alert.alert('Aviso', 'Preencha todos os campos');
       return;
     }
 
-    const novoContato = {
-      id: Date.now(),
-      nome: nomeContato,
-      numero: numeroContato,
-    };
+    if (!idUsuario) {
+      Alert.alert('Erro', 'Usuário não identificado');
+      return;
+    }
 
-    setContatos((prev) => [novoContato, ...prev]);
+    try {
 
-    setNomeContato('');
-    setNumeroContato('');
-  }
+      const response = await fetch(
+        'http://localhost/axon_api/salvar_contato.php',
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+          },
+
+          body: JSON.stringify({
+            id_usuario: idUsuario,
+            nome_contato: nomeContato,
+            numero: numeroContato,
+          }),
+        }
+      );
+
+      const json = await response.json();
+
+      if (json.sucesso) {
+
+        Alert.alert('Sucesso', json.mensagem);
+
+        const novoContato = {
+          id: Date.now(),
+          nome: nomeContato,
+          numero: numeroContato,
+        };
+
+        setContatos((prev) => [novoContato, ...prev]);
+
+        setNomeContato('');
+        setNumeroContato('');
+
+      } else {
+
+        Alert.alert('Erro', json.mensagem);
+
+      }
+
+    } catch (error) {
+
+      console.log('Erro:', error);
+
+      Alert.alert(
+        'Erro',
+        'Falha na conexão com o servidor'
+      );
+
+    }
+  };
+
 
   function ligarCVV() {
     Linking.openURL('tel:188');
   }
 
+
   return (
     <SafeAreaView style={styles.container}>
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+
         {/* VOLTAR */}
         <TouchableOpacity
           style={styles.botaoVoltar}
-          onPress={() => navigation && navigation.navigate('TelaUsuario')}
+          onPress={() =>
+            navigation && navigation.navigate('TelaUsuario')
+          }
         >
-          <Ionicons name="arrow-back" size={24} color="#4B3FAF" />
-          <Text style={styles.textoVoltar}>Voltar</Text>
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#4B3FAF"
+          />
+
+          <Text style={styles.textoVoltar}>
+            Voltar
+          </Text>
+
         </TouchableOpacity>
 
-        <Text style={styles.titulo}>Ajuda & Emergência</Text>
+
+        <Text style={styles.titulo}>
+          Ajuda & Emergência
+        </Text>
+
 
         {/* CVV */}
         <View style={styles.card}>
-          <Text style={styles.cardTitulo}>CVV</Text>
-          <Text style={styles.cardTexto}>Apoio emocional 24h</Text>
 
-          <Text style={styles.numeroCVV}>188</Text>
+          <Text style={styles.cardTitulo}>
+            CVV
+          </Text>
 
-          <TouchableOpacity style={styles.botaoCVV} onPress={ligarCVV}>
-            <Text style={styles.textoBotao}>Ligar</Text>
+          <Text style={styles.cardTexto}>
+            Apoio emocional 24h
+          </Text>
+
+          <Text style={styles.numeroCVV}>
+            188
+          </Text>
+
+          <TouchableOpacity
+            style={styles.botaoCVV}
+            onPress={ligarCVV}
+          >
+            <Text style={styles.textoBotao}>
+              Ligar
+            </Text>
           </TouchableOpacity>
+
         </View>
+
 
         {/* FORM */}
         <View style={styles.card}>
-          <Text style={styles.cardTitulo}>Contato de Emergência</Text>
+
+          <Text style={styles.cardTitulo}>
+            Contato de Emergência
+          </Text>
 
           <TextInput
             style={styles.input}
@@ -90,37 +207,69 @@ export default function TelaAjuda({ navigation }) {
             keyboardType="phone-pad"
           />
 
-          <TouchableOpacity style={styles.botaoSalvar} onPress={salvarContato}>
-            <Text style={styles.textoBotao}>Salvar contato</Text>
+          <TouchableOpacity
+            style={styles.botaoSalvar}
+            onPress={salvarContato}
+          >
+            <Text style={styles.textoBotao}>
+              Salvar contato
+            </Text>
           </TouchableOpacity>
+
         </View>
+
 
         {/* LISTA */}
         {contatos.map((item) => (
-          <View key={item.id} style={styles.card}>
-            <Text style={styles.cardTitulo}>Contato Salvo</Text>
 
-            <Text style={styles.contatoNome}>{item.nome}</Text>
-            <Text style={styles.contatoNumero}>{item.numero}</Text>
+          <View
+            key={item.id}
+            style={styles.card}
+          >
+
+            <Text style={styles.cardTitulo}>
+              Contato Salvo
+            </Text>
+
+            <Text style={styles.contatoNome}>
+              {item.nome}
+            </Text>
+
+            <Text style={styles.contatoNumero}>
+              {item.numero}
+            </Text>
 
             <TouchableOpacity
               style={styles.botaoEmergencia}
-              onPress={() => Linking.openURL(`tel:${item.numero}`)}
+              onPress={() =>
+                Linking.openURL(`tel:${item.numero}`)
+              }
             >
-              <Text style={styles.textoBotao}>Ligar Agora</Text>
+              <Text style={styles.textoBotao}>
+                Ligar Agora
+              </Text>
             </TouchableOpacity>
+
           </View>
+
         ))}
+
       </ScrollView>
+
     </SafeAreaView>
   );
 }
 
+
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: '#F7F7FB',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop:
+      Platform.OS === 'android'
+        ? StatusBar.currentHeight
+        : 0,
   },
 
   scroll: {
@@ -130,7 +279,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingBottom: 200,
-    flexGrow: 1, // 🔥 ISSO AQUI É O QUE FAZ ROLAR NO WEB
+    flexGrow: 1,
   },
 
   botaoVoltar: {
@@ -156,7 +305,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     marginBottom: 20,
-    marginTop:-20,
+    marginTop: -20,
   },
 
   cardTitulo: {
@@ -219,4 +368,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
   },
+
 });

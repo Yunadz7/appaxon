@@ -15,15 +15,13 @@ import { Picker } from '@react-native-picker/picker';
 export default function TelaRegistro({ navigation }) {
 
   const [humor, setHumor] = useState('');
-  const [sono, setSono] = useState('');
   const [ansiedade, setAnsiedade] = useState('');
   const [energia, setEnergia] = useState('');
-  const [agua, setAgua] = useState('');
   const [medicacao, setMedicacao] = useState('');
   const [observacao, setObservacao] = useState('');
 
   const salvarRegistro = async () => {
-    if (!humor || !sono || !ansiedade) {
+    if (!humor || !ansiedade) {
       Alert.alert('Aviso', 'Preencha os campos principais!');
       return;
     }
@@ -37,10 +35,8 @@ export default function TelaRegistro({ navigation }) {
         body: JSON.stringify({
           id_usuario: 1,
           emocoes: humor,
-          sono,
           ansiedade,
           energia: energia === 'Alta' ? 3 : energia === 'Média' ? 2 : 1,
-          agua,
           medicacao: medicacao === 'Sim' ? 1 : 0,
           observacoes: observacao,
         }),
@@ -125,24 +121,6 @@ export default function TelaRegistro({ navigation }) {
 
         </View>
 
-        {/* SONO (ESCALA 1–10) */}
-        <Text style={styles.label}>Sono (1 a 10)</Text>
-
-        <View style={styles.input}>
-          <Picker
-            selectedValue={sono}
-            onValueChange={(value) => setSono(value)}
-          >
-            <Picker.Item label="Selecione" value="" />
-            {Array.from({ length: 10 }, (_, i) => (
-              <Picker.Item
-                key={i}
-                label={`${i + 1}`}
-                value={i + 1}
-              />
-            ))}
-          </Picker>
-        </View>
 
         {/* ANSIEDADE (ESCALA 1–10) */}
         <Text style={styles.label}>Ansiedade (1 a 10)</Text>
@@ -193,24 +171,6 @@ export default function TelaRegistro({ navigation }) {
 
         </View>
 
-        {/* ÁGUA (ESCALA 1–10) */}
-        <Text style={styles.label}>Água (1 a 10)</Text>
-
-        <View style={styles.input}>
-          <Picker
-            selectedValue={agua}
-            onValueChange={(value) => setAgua(value)}
-          >
-            <Picker.Item label="Selecione" value="" />
-            {Array.from({ length: 10 }, (_, i) => (
-              <Picker.Item
-                key={i}
-                label={`${i + 1}`}
-                value={i + 1}
-              />
-            ))}
-          </Picker>
-        </View>
 
         {/* MEDICAÇÃO */}
         <Text style={styles.label}>
