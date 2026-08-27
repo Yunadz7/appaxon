@@ -1,0 +1,165 @@
+CREATE DATABASE axon;
+ USE axon;
+ DROP DATABASE axon;
+ -- USUÁRIOS (PACIENTES) 
+CREATE TABLE usuario (
+ id_usuario INT PRIMARY KEY AUTO_INCREMENT, 
+ nome VARCHAR(100) NOT NULL, 
+ cpf VARCHAR(11) NOT NULL, 
+ data_nascimento DATE, 
+ senha VARCHAR(255) NOT NULL 
+ ); 
+ 
+ INSERT INTO usuario (nome, cpf, data_nascimento, senha)
+VALUES
+('João Silva', '12345678901', '2000-05-10', '123456'),
+('Maria Souza', '98765432100', '1998-08-15', 'senha123');
+
+ -- MÉDICOS (WEB) 
+ CREATE TABLE medico ( 
+ id_medico INT PRIMARY KEY AUTO_INCREMENT,
+ nome VARCHAR(100) NOT NULL, crm VARCHAR(20) NOT NULL, 
+ especialidade VARCHAR(100) NOT NULL 
+ );
+ 
+ INSERT INTO medico (nome, crm, especialidade)
+VALUES
+('Dr. Carlos Lima', 'CRM12345', 'Psicologia'),
+('Dra. Ana Costa', 'CRM67890', 'Psiquiatria');
+
+ -- CONSULTAS 
+ CREATE TABLE consulta (
+ id_consulta INT PRIMARY KEY AUTO_INCREMENT,
+ id_medico INT, id_usuario INT NOT NULL,
+ data_consulta DATE NOT NULL,
+ horario TIME NOT NULL,
+ FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+ FOREIGN KEY (id_medico) REFERENCES medico(id_medico) 
+ ); 
+ 
+ INSERT INTO consulta (id_medico, id_usuario, data_consulta, horario)
+VALUES
+(1, 1, '2026-07-01', '14:00:00'),
+(2, 2, '2026-07-02', '09:30:00');
+
+-- REGISTRO EMOCIONAL 
+CREATE TABLE registro (
+ id_registro INT PRIMARY KEY AUTO_INCREMENT,
+ id_usuario INT NOT NULL,
+ emocoes VARCHAR(100),
+ sono VARCHAR(100),
+ ansiedade TINYINT,
+ energia TINYINT,
+ agua TINYINT,
+ medicacao VARCHAR(100),
+ observacoes TEXT,
+ data_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) 
+ );
+ 
+ INSERT INTO registro
+(id_usuario, emocoes, sono, ansiedade, energia, agua, medicacao, observacoes)
+VALUES
+(1, 'Feliz', 'Bom', 2, 8, 6, 'Nenhuma', 'Dia tranquilo'),
+(2, 'Ansioso', 'Ruim', 8, 3, 4, 'Sertralina', 'Muita preocupação');
+
+ -- AJUDA 
+ CREATE TABLE ajuda (
+ id_ajuda INT PRIMARY KEY AUTO_INCREMENT,
+ id_usuario INT NOT NULL,
+ nome_contato VARCHAR(100) NOT NULL,
+ numero VARCHAR(20) NOT NULL,
+ FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) 
+ ); 
+ 
+ INSERT INTO ajuda
+(id_usuario, nome_contato, numero)
+VALUES
+(1, 'Mãe', '13999999999'),
+(1, 'Pai', '13988888888'),
+(2, 'Irmã', '13977777777');
+
+ -- DISPOSITIVOS 
+ CREATE TABLE dispositivo (
+ id_dispositivo INT PRIMARY KEY AUTO_INCREMENT,
+ nome VARCHAR(100) NOT NULL,
+ codigo VARCHAR(20) UNIQUE NOT NULL 
+ ); 
+ 
+ INSERT INTO dispositivo
+(nome, codigo)
+VALUES
+('Pulseira Inteligente', 'AX001'),
+('Smartwatch', 'AX002');
+
+
+ -- LEITURAS 
+ 
+ CREATE TABLE leitura_dispositivo (
+ id INT PRIMARY KEY AUTO_INCREMENT,
+ id_dispositivo INT NOT NULL,
+ leitura VARCHAR(100),
+ data_leitura DATETIME DEFAULT CURRENT_TIMESTAMP,
+ alerta VARCHAR(100),
+ FOREIGN KEY (id_dispositivo) REFERENCES dispositivo(id_dispositivo) 
+ ); 
+ 
+ INSERT INTO leitura_dispositivo
+(id_dispositivo, leitura, alerta)
+VALUES
+(1, 'Batimento: 75 bpm', 'Normal'),
+(2, 'Batimento: 120 bpm', 'Elevado');
+
+ -- HISTÓRICO EMOCIONAL 
+ CREATE TABLE historico_emocional (
+ id_historico INT PRIMARY KEY AUTO_INCREMENT,
+ id_usuario INT NOT NULL,
+ emocao VARCHAR(50),
+ nivel_humor TINYINT,
+ data_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) 
+ );
+ 
+ INSERT INTO historico_emocional
+(id_usuario, emocao, nivel_humor)
+VALUES
+(1, 'Feliz', 9),
+(1, 'Calmo', 8),
+(2, 'Ansioso', 3);
+
+-- correção atividade table
+CREATE TABLE atividades (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100)
+);
+INSERT INTO atividades (nome) VALUES
+('Fazer exercício físico'),
+('Beber água'),
+('Dormir cedo'),
+('Tomar medicação'),
+('Meditar 10 minutos'),
+('Comer frutas');
+
+
+CREATE TABLE atividades_usuario (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    id_atividade INT NOT NULL,
+    concluida TINYINT DEFAULT 0,
+    data_registro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO atividades_usuario (id_usuario, id_atividade, concluida)
+VALUES (1, 3, 1);
+SHOW TABLE STATUS;
+SELECT * FROM usuario;
+SELECT * FROM medico;
+SELECT * FROM consulta;
+SELECT * FROM registro;
+SELECT * FROM ajuda;
+SELECT * FROM dispositivo;
+SELECT * FROM leitura_dispositivo;
+SELECT * FROM historico_emocional;
+SELECT * FROM atividades;
+SELECT * FROM atividades_usuario;
+SELECT * FROM atividades_usuario WHERE id_usuario = 3 ORDER BY data_registro DESC;
