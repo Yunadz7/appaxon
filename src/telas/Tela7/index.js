@@ -24,7 +24,7 @@ export default function Tela7({ navigation }) {
   const [dataSelecionada, setDataSelecionada] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
 
-  // 🔥 CADASTRO LIGADO AO BANCO
+  // CADASTRO LIGADO AO BANCO
   const cadastrar = async () => {
 
     if (!nome || !cpf || !senha || !dataSelecionada) {

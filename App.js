@@ -29,6 +29,7 @@ import TelaAjuda from './src/telas/TelaAjuda';
 import TelaConexao from './src/telas/TelaConexao';
 import TelaBemEstar from './src/telas/TelaBemEstar';
 import TelaDetalheRegistro from './src/telas/TelaDetalheRegistro';
+import TelaContato from './src/telas/TelaContato';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -77,7 +78,7 @@ export default function App() {
           <Stack.Screen name="Tela6" component={Tela6} />
           <Stack.Screen name="Tela7" component={Tela7} />
 
-          {/* Suas telas originais intactas abaixo */}
+          {/* telas originais */}
           <Stack.Screen name="TelaUsuario" component={TelaUsuario} />
           <Stack.Screen name="TelaAtividades" component={TelaAtividades} />
           <Stack.Screen name="TelaConsulta" component={TelaConsulta} />
@@ -88,6 +89,7 @@ export default function App() {
           <Stack.Screen name="TelaConexao" component={TelaConexao} />
           <Stack.Screen name="TelaBemEstar" component={TelaBemEstar} />
           <Stack.Screen name="TelaDetalheRegistro" component={TelaDetalheRegistro}/>
+          <Stack.Screen name="TelaContato" component={TelaContato}/>
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

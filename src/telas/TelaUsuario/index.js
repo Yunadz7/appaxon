@@ -15,8 +15,6 @@ export default function TelaUsuario({ navigation }) {
     <View style={styles.container}>
 
       {/* BOTÃO MENU (DRAWER) */}
-
-      {/* BOTÃO MENU (DRAWER) */}
       <TouchableOpacity
         style={styles.botaoMenu}
         onPress={() => {
@@ -38,9 +36,9 @@ export default function TelaUsuario({ navigation }) {
       >
         <Text style={styles.textoMenu}>☰</Text>
       </TouchableOpacity>
+
       {/* HEADER */}
       <View style={styles.header}>
-
         <Ionicons name="settings-outline" size={24} color="#333" />
       </View>
 
@@ -70,9 +68,6 @@ export default function TelaUsuario({ navigation }) {
           </View>
         </TouchableOpacity>
 
-        {/* RESUMO */}
-
-
         {/* MENU */}
         <View style={styles.menuCard}>
 
@@ -80,6 +75,12 @@ export default function TelaUsuario({ navigation }) {
             icon="phone-portrait-outline"
             text="Dispositivo"
             onPress={() => navigation.navigate('TelaDispositivo')}
+          />
+
+          <MenuItem
+            icon="call-outline"
+            text="Contato"
+            onPress={() => navigation.navigate('TelaContato')}
           />
 
           <MenuItem
