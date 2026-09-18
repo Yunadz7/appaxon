@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -20,7 +21,7 @@ import { Calendar } from 'react-native-calendars';
 const API_URL = 'http://localhost/axon_api';
 
 export default function TelaConsulta({ navigation }) {
-  const [nome, setNome] = useState('');
+
   const [especialidade, setEspecialidade] = useState('');
   const [medicos, setMedicos] = useState([]);
   const [medicoSelecionado, setMedicoSelecionado] = useState('');
@@ -37,16 +38,11 @@ export default function TelaConsulta({ navigation }) {
   // ========================================
 
   const handleEspecialidadeChange = (itemValue) => {
+
     setEspecialidade(itemValue);
-
-    // Limpa o médico anterior
     setMedicoSelecionado('');
-
-    // Limpa a lista anterior
     setMedicos([]);
 
-    // Se escolheu uma especialidade,
-    // busca os médicos daquela especialidade
     if (itemValue !== '') {
       carregarMedicos(itemValue);
     }
@@ -57,9 +53,11 @@ export default function TelaConsulta({ navigation }) {
   // ========================================
 
   const carregarMedicos = async (especialidadeEscolhida) => {
+
     setLoadingMedicos(true);
 
     try {
+
       const url =
         `${API_URL}/especialidade.php?especialidade=` +
         encodeURIComponent(especialidadeEscolhida);
@@ -69,9 +67,7 @@ export default function TelaConsulta({ navigation }) {
       const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error(
-          'Erro HTTP: ' + response.status
-        );
+        throw new Error('Erro HTTP: ' + response.status);
       }
 
       const data = await response.json();
@@ -79,6 +75,7 @@ export default function TelaConsulta({ navigation }) {
       console.log('Médicos recebidos:', data);
 
       if (Array.isArray(data)) {
+
         setMedicos(data);
 
         if (data.length === 0) {
@@ -87,7 +84,9 @@ export default function TelaConsulta({ navigation }) {
             'Nenhum médico encontrado para esta especialidade.'
           );
         }
+
       } else {
+
         setMedicos([]);
 
         Alert.alert(
@@ -97,6 +96,7 @@ export default function TelaConsulta({ navigation }) {
       }
 
     } catch (error) {
+
       console.error(
         'Erro ao carregar médicos:',
         error
@@ -110,6 +110,7 @@ export default function TelaConsulta({ navigation }) {
       );
 
     } finally {
+
       setLoadingMedicos(false);
     }
   };
@@ -119,16 +120,17 @@ export default function TelaConsulta({ navigation }) {
   // ========================================
 
   const marcarConsulta = async () => {
+
     if (
-      !nome.trim() ||
       !especialidade ||
       !medicoSelecionado ||
       !dataSelecionada ||
       !horaSelecionada
     ) {
+
       Alert.alert(
         'Atenção',
-        'Por favor, preencha todos os campos antes de continuar.'
+        'Preencha todos os campos antes de continuar.'
       );
 
       return;
@@ -137,6 +139,50 @@ export default function TelaConsulta({ navigation }) {
     setCarregando(true);
 
     try {
+
+      // ========================================
+      // PEGA O USUÁRIO LOGADO
+      // ========================================
+
+      const usuarioSalvo =
+        await AsyncStorage.getItem('usuario');
+
+      if (!usuarioSalvo) {
+
+        Alert.alert(
+          'Erro',
+          'Usuário não encontrado. Faça login novamente.'
+        );
+
+        setCarregando(false);
+        return;
+      }
+
+      const usuario = JSON.parse(usuarioSalvo);
+
+      console.log('Usuário logado:', usuario);
+
+      // ========================================
+      // PEGA O ID DO USUÁRIO
+      // ========================================
+
+      const id_usuario = usuario.id_usuario;
+
+      if (!id_usuario) {
+
+        Alert.alert(
+          'Erro',
+          'ID do usuário não encontrado. Faça login novamente.'
+        );
+
+        setCarregando(false);
+        return;
+      }
+
+      // ========================================
+      // ENVIA PARA O PHP
+      // ========================================
+
       const response = await fetch(
         `${API_URL}/consulta.php`,
         {
@@ -147,15 +193,21 @@ export default function TelaConsulta({ navigation }) {
           },
 
           body: JSON.stringify({
-            nome: nome.trim(),
+
+            id_usuario: id_usuario,
+
             id_medico: medicoSelecionado,
+
             data_consulta: dataSelecionada,
+
             horario: horaSelecionada,
+
           }),
         }
       );
 
       if (!response.ok) {
+
         throw new Error(
           'Erro HTTP: ' + response.status
         );
@@ -168,29 +220,33 @@ export default function TelaConsulta({ navigation }) {
         resData
       );
 
-      if (resData.status === 'success') {
-        Alert.alert(
-          'Sucesso!',
-          resData.message ||
-            'Consulta agendada com sucesso!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.navigate('Tela1');
-              },
-            },
-          ]
-        );
-      } else {
-        Alert.alert(
-          'Erro',
-          resData.message ||
-            'Erro ao agendar consulta.'
-        );
-      }
+      // ========================================
+      // SUCESSO
+      // ========================================
+
+ // ========================================
+// SUCESSO
+// ========================================
+
+if (resData.status === 'success') {
+
+  Alert.alert(
+    'Sucesso!',
+    resData.message || 'Consulta agendada com sucesso!'
+  );
+
+  navigation.navigate('Tela1');
+
+} else {
+
+  Alert.alert(
+    'Erro',
+    resData.message || 'Erro ao agendar consulta.'
+  );
+}
 
     } catch (error) {
+
       console.error(
         'Erro ao agendar consulta:',
         error
@@ -202,6 +258,7 @@ export default function TelaConsulta({ navigation }) {
       );
 
     } finally {
+
       setCarregando(false);
     }
   };
@@ -211,23 +268,12 @@ export default function TelaConsulta({ navigation }) {
   // ========================================
 
   return (
+
     <View style={styles.container}>
 
       <Text style={styles.titulo}>
         Agendar Consulta
       </Text>
-
-      {/* ==================================
-          NOME
-      ================================== */}
-
-      <TextInput
-        placeholder="Nome completo"
-        value={nome}
-        onChangeText={setNome}
-        style={styles.input}
-        placeholderTextColor="#8a8fa6"
-      />
 
       {/* ==================================
           ESPECIALIDADE
@@ -237,9 +283,7 @@ export default function TelaConsulta({ navigation }) {
 
         <Picker
           selectedValue={especialidade}
-          onValueChange={
-            handleEspecialidadeChange
-          }
+          onValueChange={handleEspecialidadeChange}
           style={styles.picker}
           dropdownIconColor="#7b81b1"
         >
@@ -273,6 +317,7 @@ export default function TelaConsulta({ navigation }) {
       ================================== */}
 
       {especialidade !== '' && (
+
         <View style={styles.pickerBox}>
 
           {loadingMedicos ? (
@@ -287,12 +332,8 @@ export default function TelaConsulta({ navigation }) {
           ) : (
 
             <Picker
-              selectedValue={
-                medicoSelecionado
-              }
-              onValueChange={
-                setMedicoSelecionado
-              }
+              selectedValue={medicoSelecionado}
+              onValueChange={setMedicoSelecionado}
               style={styles.picker}
               dropdownIconColor="#7b81b1"
             >
@@ -305,13 +346,9 @@ export default function TelaConsulta({ navigation }) {
               {medicos.map((medico) => (
 
                 <Picker.Item
-                  key={String(
-                    medico.id_medico
-                  )}
+                  key={String(medico.id_medico)}
                   label={medico.nome}
-                  value={String(
-                    medico.id_medico
-                  )}
+                  value={String(medico.id_medico)}
                 />
 
               ))}
@@ -321,6 +358,7 @@ export default function TelaConsulta({ navigation }) {
           )}
 
         </View>
+
       )}
 
       {/* ==================================
@@ -329,15 +367,13 @@ export default function TelaConsulta({ navigation }) {
 
       <TouchableOpacity
         style={styles.input}
-        onPress={() =>
-          setShowCalendar(true)
-        }
+        onPress={() => setShowCalendar(true)}
       >
 
         <Text style={styles.texto}>
-          📅{' '}
-          {dataSelecionada ||
-            'Selecionar data'}
+
+          📅 {dataSelecionada || 'Selecionar data'}
+
         </Text>
 
       </TouchableOpacity>
@@ -350,6 +386,7 @@ export default function TelaConsulta({ navigation }) {
         visible={showCalendar}
         transparent
         animationType="fade"
+
         onRequestClose={() =>
           setShowCalendar(false)
         }
@@ -360,6 +397,7 @@ export default function TelaConsulta({ navigation }) {
           <View style={styles.calendarCard}>
 
             <Calendar
+
               onDayPress={(day) => {
 
                 setDataSelecionada(
@@ -374,14 +412,14 @@ export default function TelaConsulta({ navigation }) {
                   ? {
                       [dataSelecionada]: {
                         selected: true,
-                        selectedColor:
-                          '#7b81b1',
+                        selectedColor: '#7b81b1',
                       },
                     }
                   : {}
               }
 
               theme={{
+
                 todayTextColor:
                   '#7b81b1',
 
@@ -390,7 +428,9 @@ export default function TelaConsulta({ navigation }) {
 
                 arrowColor:
                   '#7b81b1',
+
               }}
+
             />
 
           </View>
@@ -420,9 +460,7 @@ export default function TelaConsulta({ navigation }) {
 
         <Picker
           selectedValue={horaSelecionada}
-          onValueChange={
-            setHoraSelecionada
-          }
+          onValueChange={setHoraSelecionada}
           style={styles.picker}
           dropdownIconColor="#7b81b1"
         >
@@ -481,20 +519,22 @@ export default function TelaConsulta({ navigation }) {
       ================================== */}
 
       <TouchableOpacity
+
         style={[
           styles.botao,
           carregando &&
             styles.botaoDesabilitado,
         ]}
+
         onPress={marcarConsulta}
+
         disabled={carregando}
+
       >
 
         {carregando ? (
 
-          <ActivityIndicator
-            color="#fff"
-          />
+          <ActivityIndicator color="#fff" />
 
         ) : (
 
@@ -571,8 +611,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor:
-      'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 
   calendarCard: {
