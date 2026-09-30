@@ -3,18 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 
 export default function DetalheRegistro({ navigation, route }) {
-
   const { registro } = route.params;
 
   return (
-
     <View style={styles.container}>
-
       <ScrollView contentContainerStyle={styles.scroll}>
 
         {/* HEADER */}
         <View style={styles.header}>
-
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -25,7 +21,6 @@ export default function DetalheRegistro({ navigation, route }) {
           <Text style={styles.headerTitle}>Detalhes</Text>
 
           <View style={{ width: 40 }} />
-
         </View>
 
         {/* CARD PRINCIPAL */}
@@ -34,11 +29,6 @@ export default function DetalheRegistro({ navigation, route }) {
           <Text style={styles.sectionTitle}>Humor</Text>
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{registro.emocoes}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>😴 Sono</Text>
-            <Text style={styles.value}>{registro.sono}/10</Text>
           </View>
 
           <View style={styles.row}>
@@ -63,14 +53,9 @@ export default function DetalheRegistro({ navigation, route }) {
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>💧 Água</Text>
-            <Text style={styles.value}>{registro.agua}/10</Text>
-          </View>
-
-          <View style={styles.row}>
             <Text style={styles.label}>💊 Medicação</Text>
             <Text style={styles.value}>
-              {registro.medicacao == 1 ? "Sim" : "Não"}
+              {registro.medicacao == 1 || registro.medicacao === "Sim" ? "Sim" : "Não"}
             </Text>
           </View>
 
@@ -82,28 +67,24 @@ export default function DetalheRegistro({ navigation, route }) {
           </View>
 
           <Text style={styles.date}>
-            📅 {registro.data_registro}
+            📅 {registro.data_formatada || registro.data_registro}
           </Text>
 
         </View>
 
       </ScrollView>
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: '#EEF1FF',
   },
-
   scroll: {
     paddingBottom: 40,
   },
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -112,7 +93,6 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     marginBottom: 10,
   },
-
   backButton: {
     width: 40,
     height: 40,
@@ -121,13 +101,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#2E2E2E'
   },
-
   card: {
     margin: 20,
     backgroundColor: '#FFF',
@@ -135,13 +113,11 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 5,
   },
-
   sectionTitle: {
     fontSize: 14,
     color: '#777',
     marginBottom: 10,
   },
-
   badge: {
     alignSelf: 'flex-start',
     backgroundColor: '#EAE8FF',
@@ -150,46 +126,38 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 15,
   },
-
   badgeText: {
     color: '#5B4FCF',
     fontWeight: 'bold'
   },
-
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-
   label: {
     fontSize: 15,
     color: '#444',
   },
-
   value: {
     fontSize: 15,
     fontWeight: '600',
     color: '#2E2E2E',
   },
-
   obsBox: {
     marginTop: 15,
     padding: 12,
     backgroundColor: '#F6F7FF',
     borderRadius: 12,
   },
-
   obsText: {
     marginTop: 6,
     color: '#555',
   },
-
   date: {
     marginTop: 20,
     textAlign: 'center',
     color: '#888',
     fontSize: 13,
   }
-
 });
