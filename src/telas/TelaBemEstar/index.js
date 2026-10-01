@@ -65,7 +65,7 @@ export default function TelaBemEstar({ navigation, route }) {
         return '😔';
       case 'Ansioso':
       case 'Irritado':
-        return '😰';
+        return '😡';
       default:
         return '😐';
     }

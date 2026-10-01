@@ -224,26 +224,22 @@ export default function TelaConsulta({ navigation }) {
       // SUCESSO
       // ========================================
 
- // ========================================
-// SUCESSO
-// ========================================
+      if (resData.status === 'success') {
 
-if (resData.status === 'success') {
+        Alert.alert(
+          'Sucesso!',
+          resData.message || 'Consulta agendada com sucesso!'
+        );
 
-  Alert.alert(
-    'Sucesso!',
-    resData.message || 'Consulta agendada com sucesso!'
-  );
+        navigation.navigate('Tela1');
 
-  navigation.navigate('Tela1');
+      } else {
 
-} else {
-
-  Alert.alert(
-    'Erro',
-    resData.message || 'Erro ao agendar consulta.'
-  );
-}
+        Alert.alert(
+          'Erro',
+          resData.message || 'Erro ao agendar consulta.'
+        );
+      }
 
     } catch (error) {
 
@@ -270,6 +266,25 @@ if (resData.status === 'success') {
   return (
 
     <View style={styles.container}>
+
+      {/* ==================================
+          BOTÃO VOLTAR
+      ================================== */}
+
+      <TouchableOpacity
+        style={styles.botaoVoltar}
+        onPress={() => navigation.navigate('Tela1')}
+      >
+
+        <Text style={styles.textoVoltar}>
+          ← Voltar
+        </Text>
+
+      </TouchableOpacity>
+
+      {/* ==================================
+          TÍTULO
+      ================================== */}
 
       <Text style={styles.titulo}>
         Agendar Consulta
@@ -561,6 +576,21 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
     backgroundColor: '#f5f5f5',
+  },
+
+  // ========================================
+  // BOTÃO VOLTAR
+  // ========================================
+
+  botaoVoltar: {
+    alignSelf: 'flex-start',
+    marginBottom: 15,
+  },
+
+  textoVoltar: {
+    fontSize: 16,
+    color: '#7b81b1',
+    fontWeight: 'bold',
   },
 
   titulo: {

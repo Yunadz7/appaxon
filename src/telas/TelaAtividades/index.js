@@ -321,7 +321,7 @@ export default function TelaAtividades({ navigation }) {
         >
 
           <Text style={styles.textoBotao}>
-            Cadastrar no banco
+            Enviar
           </Text>
 
         </TouchableOpacity>
