@@ -55,7 +55,8 @@ export default function TelaRegistro({ navigation }) {
       }
 
       if (json.sucesso) {
-        Alert.alert('Sucesso', 'Registro salvo!');
+        // Redireciona imediatamente de volta para a Tela1
+        navigation.navigate('Tela1');
       } else {
         Alert.alert('Erro', json.erro || 'Erro ao salvar');
       }
@@ -262,6 +263,7 @@ const styles = StyleSheet.create({
 
   humorContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     marginTop: 20,
   },
@@ -319,12 +321,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  humorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
   botaoVoltar: {
     backgroundColor: '#ccc',
     width: 250,

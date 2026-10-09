@@ -211,6 +211,9 @@ export default function TelaAtividades({ navigation }) {
         "Atividades salvas no banco!"
       );
 
+      // Redireciona imediatamente após salvar com sucesso
+      navigation.navigate('Tela1');
+
     } catch (error) {
 
       console.log(
