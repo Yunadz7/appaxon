@@ -1,4 +1,4 @@
-import 'react-native-gesture-handler'; // 🔥 IMPORTANTE: Deve ser sempre a primeira linha do ficheiro!
+import 'react-native-gesture-handler'; 
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -30,6 +30,11 @@ import TelaConexao from './src/telas/TelaConexao';
 import TelaBemEstar from './src/telas/TelaBemEstar';
 import TelaDetalheRegistro from './src/telas/TelaDetalheRegistro';
 import TelaContato from './src/telas/TelaContato';
+import TelaApoio from './src/telas/TelaApoio';
+import TelaComoUsar from './src/telas/TelaComoUsar';
+import TelaMetas from './src/telas/TelaMetas';
+import TelaMotivacao from './src/telas/TelaMotivacao';
+import TelaInfoNovidades from './src/telas/TelaInfoNovidades';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -90,6 +95,12 @@ export default function App() {
           <Stack.Screen name="TelaBemEstar" component={TelaBemEstar} />
           <Stack.Screen name="TelaDetalheRegistro" component={TelaDetalheRegistro}/>
           <Stack.Screen name="TelaContato" component={TelaContato}/>
+          <Stack.Screen name="TelaApoio" component={TelaApoio}/>
+          <Stack.Screen name="TelaComoUsar" component={TelaComoUsar}/>
+          <Stack.Screen name="TelaMetas" component={TelaMetas}/>
+          <Stack.Screen name="TelaMotivacao" component={TelaMotivacao}/>
+          <Stack.Screen name="TelaInfoNovidades" component={TelaInfoNovidades}/>
+
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

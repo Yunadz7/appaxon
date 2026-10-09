@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,81 +6,55 @@ import {
   ImageBackground,
   TouchableOpacity,
   ScrollView,
-  Modal,
 } from 'react-native';
 
 export default function TelaNovidades({ navigation }) {
 
-  const [modalVisivel, setModalVisivel] = useState(false);
-  const [conteudoModal, setConteudoModal] = useState({ titulo: '', itens: [] });
-
-  // Lista de tópicos no formato de botões/cartões
+  // Lista de tópicos no formato de botões (incluindo Novidades)
   const topicos = [
     {
       id: 'dicas',
       titulo: 'Dicas de Bem-Estar',
       icone: '💡',
       cor: '#DCEFD8', // Verde suave
-      itens: [
-        { subtitulo: 'Respiração Guiada 🫁', texto: 'Tente respirar profundamente por 2 minutos (inspire por 4s, segure por 4s, expire por 6s) para acalmar a ansiedade.' },
-        { subtitulo: 'Higiene do Sono 🌙', texto: 'Evite telas 30 minutos antes de dormir. Dormir 8 horas reduz significativamente o estresse.' },
-        { subtitulo: 'Hidratação 🥤', texto: 'Beber água regularmente melhora o foco e reduz o cansaço mental.' },
-      ],
+      tela: 'TelaDicas',
     },
     {
       id: 'apoio',
       titulo: 'Canais de Apoio',
       icone: '🆘',
       cor: '#D2EFF2', // Azul pastel
-      itens: [
-        { subtitulo: 'CVV - Ligue 188 📞', texto: 'Apoio emocional gratuito e confidencial 24h por dia.' },
-        { subtitulo: 'SAMU - Ligue 192 🚑', texto: 'Para emergências de saúde física ou crises graves.' },
-        { subtitulo: 'Rede Local (UBS/CAPS) 🏥', texto: 'Procure a unidade de saúde mais próxima para apoio psicológico.' },
-      ],
+      tela: 'TelaApoio',
     },
     {
       id: 'metas',
       titulo: 'Metas e Hábitos',
       icone: '🔥',
       cor: '#E5E8F5', // Lilás claro
-      itens: [
-        { subtitulo: 'Meta da Semana 🎯', texto: 'Complete 5 atividades seguidas para fortalecer sua rotina.' },
-        { subtitulo: 'Pequenas Vitórias 🏆', texto: 'Celebre até as menores tarefas concluídas no dia a dia.' },
-      ],
+      tela: 'TelaMetas',
     },
     {
       id: 'novidades',
       titulo: 'Novidades do App',
       icone: '🆕',
       cor: '#E3DDF7', // Roxo pastel
-      itens: [
-        { subtitulo: 'Registro Diário 📝', texto: 'Agora você pode registrar seu humor diário, ansiedade e tarefas ativas.' },
-      ],
+      tela: 'TelaInfoNovidades',
     },
     {
       id: 'motivacao',
       titulo: 'Frase do Dia',
       icone: '✨',
       cor: '#FCE4EC', // Rosa claro
-      itens: [
-        { subtitulo: 'Inspiração 💬', texto: '“Pequenos passos todos os dias levam a grandes mudanças.”' },
-      ],
+      tela: 'TelaMotivacao',
     },
     {
       id: 'ajuda',
       titulo: 'Como Usar',
       icone: '❓',
       cor: '#FFF2D6', // Amarelo pastel
-      itens: [
-        { subtitulo: 'Navegação 📱', texto: 'Utilize os botões da Home para alternar rapidamente entre o Registro, Atividades e Informativos.' },
-      ],
+      tela: 'TelaComoUsar',
     },
   ];
-
-  const abrirCategoria = (item) => {
-    setConteudoModal(item);
-    setModalVisivel(true);
-  };
 
   return (
     <ImageBackground
@@ -94,15 +68,15 @@ export default function TelaNovidades({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.titulo}>Informativos & Dicas</Text>
-        <Text style={styles.subtitulo}>Clique em uma das opções abaixo:</Text>
+        <Text style={styles.subtitulo}>Selecione uma categoria:</Text>
 
-        {/* CONTAINER EM GRID/QUADROS */}
+        {/* GRID DE BOTÕES */}
         <View style={styles.gridContainer}>
           {topicos.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={[styles.cardGrid, { backgroundColor: item.cor }]}
-              onPress={() => abrirCategoria(item)}
+              onPress={() => navigation.navigate(item.tela)}
               activeOpacity={0.8}
             >
               <Text style={styles.iconeGrid}>{item.icone}</Text>
@@ -119,38 +93,6 @@ export default function TelaNovidades({ navigation }) {
           <Text style={styles.textoBotao}>Voltar para Home</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      {/* MODAL COM OS DETALHES DA INFORMAÇÃO */}
-      <Modal
-        visible={modalVisivel}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setModalVisivel(false)}
-      >
-        <View style={styles.modalFundo}>
-          <View style={styles.modalConteudo}>
-            <Text style={styles.modalTitulo}>
-              {conteudoModal.icone} {conteudoModal.titulo}
-            </Text>
-
-            <ScrollView style={{ maxHeight: 300, width: '100%' }}>
-              {conteudoModal.itens?.map((sub, index) => (
-                <View key={index} style={styles.modalItem}>
-                  <Text style={styles.modalSubtitulo}>{sub.subtitulo}</Text>
-                  <Text style={styles.modalTexto}>{sub.texto}</Text>
-                </View>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              style={styles.botaoFecharModal}
-              onPress={() => setModalVisivel(false)}
-            >
-              <Text style={styles.textoBotaoFechar}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </ImageBackground>
   );
 }
@@ -223,65 +165,6 @@ const styles = StyleSheet.create({
   textoBotao: {
     color: '#fff',
     fontSize: 17,
-    fontWeight: '600',
-  },
-
-  /* ESTILOS DO MODAL */
-  modalFundo: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  modalConteudo: {
-    backgroundColor: '#fff',
-    width: 320,
-    borderRadius: 25,
-    padding: 22,
-    alignItems: 'center',
-    elevation: 5,
-  },
-
-  modalTitulo: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#444',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-
-  modalItem: {
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
-    paddingBottom: 10,
-  },
-
-  modalSubtitulo: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6d9c7b',
-  },
-
-  modalTexto: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 4,
-    lineHeight: 20,
-  },
-
-  botaoFecharModal: {
-    backgroundColor: '#9BC6B8',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 20,
-    marginTop: 15,
-  },
-
-  textoBotaoFechar: {
-    color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
 });
