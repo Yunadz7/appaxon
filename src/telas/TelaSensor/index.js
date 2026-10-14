@@ -1,150 +1,178 @@
-import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ImageBackground,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function TelaNovidades({ navigation }) {
+// ⚠️ Coloque aqui o IP local da sua máquina
+const IP_SERVIDOR = 'localhost';
 
-  // Lista de tópicos no formato de botões (incluindo Novidades)
-  const topicos = [
-   
-    {
-      id: 'novidades',
-      titulo: 'Novidades do App',
-      icone: '🆕',
-      cor: '#E3DDF7', // Roxo pastel
-      tela: 'TelaInfoNovidades',
-    },
-    {
-      id: 'motivacao',
-      titulo: 'Frase do Dia',
-      icone: '✨',
-      cor: '#FCE4EC', // Rosa claro
-      tela: 'TelaMotivacao',
-    },
-    {
-      id: 'ajuda',
-      titulo: 'Como Usar',
-      icone: '❓',
-      cor: '#FFF2D6', // Amarelo pastel
-      tela: 'TelaComoUsar',
-    },
-  ];
+export default function TelaSensor({ navigation }) {
+  const [bpm, setBpm] = useState('--');
+  const [spo2, setSpo2] = useState('--');
+  const [ansiedade, setAnsiedade] = useState('Conectando...');
+  const [carregando, setCarregando] = useState(true);
+
+  // Função para buscar as leituras no backend
+  const buscarDadosSensor = async () => {
+    try {
+      const response = await fetch(`http://localhost/axon_api/buscar_leituras.php`);
+      const data = await response.json();
+
+      if (data.status === 'sucesso') {
+        setBpm(data.bpm);
+        setSpo2(data.spo2);
+        setAnsiedade(data.ansiedade);
+      } else {
+        setAnsiedade('Aguardando sensor...');
+      }
+    } catch (error) {
+      console.log('Erro ao buscar dados do sensor:', error);
+      setAnsiedade('Erro na conexão');
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  useEffect(() => {
+    buscarDadosSensor();
+
+    const intervalo = setInterval(() => {
+      buscarDadosSensor();
+    }, 1500);
+
+    return () => clearInterval(intervalo);
+  }, []);
+
+  const getCorAnsiedade = () => {
+    if (ansiedade === 'Calmo') return '#2ecc71';          // Verde
+    if (ansiedade === 'Ansiedade Média') return '#f1c40f'; // Amarelo
+    if (ansiedade === 'Ansiedade Alta') return '#e74c3c';  // Vermelho
+    return '#95a5a6';                                     // Cinza
+  };
 
   return (
-    <ImageBackground
-      source={require('../../../assets/img_fundo.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.titulo}>Informativos & Dicas</Text>
-        <Text style={styles.subtitulo}>Selecione uma categoria:</Text>
+    <View style={styles.container}>
 
-        {/* GRID DE BOTÕES */}
-        <View style={styles.gridContainer}>
-          {topicos.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[styles.cardGrid, { backgroundColor: item.cor }]}
-              onPress={() => navigation.navigate(item.tela)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.iconeGrid}>{item.icone}</Text>
-              <Text style={styles.textoCardGrid}>{item.titulo}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* BOTÃO VOLTAR */}
+      {/* HEADER COM BOTÃO VOLTAR */}
+      <View style={styles.header}>
         <TouchableOpacity
-          style={styles.botao}
-          onPress={() => navigation.navigate('Tela1')}
+          style={styles.botaoVoltar}
+          onPress={() => navigation.navigate('TelaDispositivo')}
         >
-          <Text style={styles.textoBotao}>Voltar para Home</Text>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-      </ScrollView>
-    </ImageBackground>
+        <Text style={styles.tituloHeader}>Leitura em Tempo Real</Text>
+      </View>
+
+      <View style={styles.conteudo}>
+        {carregando ? (
+          <ActivityIndicator size="large" color="#3498db" />
+        ) : (
+          <>
+            {/* BADGE DE ANSIEDADE */}
+            <View style={[styles.cardAnsiedade, { backgroundColor: getCorAnsiedade() }]}>
+              <Text style={styles.labelAnsiedade}>Estado Atual</Text>
+              <Text style={styles.textoAnsiedade}>{ansiedade}</Text>
+            </View>
+
+            {/* CARD BPM */}
+            <View style={styles.cardMetrica}>
+              <Ionicons name="heart" size={40} color="#e74c3c" />
+              <View style={styles.infoMetrica}>
+                <Text style={styles.labelMetrica}>Frequência Cardíaca</Text>
+                <Text style={styles.valorMetrica}>{bpm} <Text style={styles.unidade}>BPM</Text></Text>
+              </View>
+            </View>
+
+            {/* CARD SPO2 */}
+            <View style={styles.cardMetrica}>
+              <Ionicons name="water" size={40} color="#3498db" />
+              <View style={styles.infoMetrica}>
+                <Text style={styles.labelMetrica}>Saturação de Oxigênio</Text>
+                <Text style={styles.valorMetrica}>{spo2} <Text style={styles.unidade}>%</Text></Text>
+              </View>
+            </View>
+          </>
+        )}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
+    backgroundColor: '#F4F6FF',
+    paddingTop: 50,
   },
-
-  scroll: {
-    paddingBottom: 120,
-  },
-
-  titulo: {
-    fontSize: 28,
-    color: '#555',
-    marginTop: 70,
-    marginLeft: 25,
-    fontWeight: '700',
-  },
-
-  subtitulo: {
-    fontSize: 15,
-    color: '#777',
-    marginLeft: 25,
-    marginTop: 5,
-    marginBottom: 20,
-  },
-
-  gridContainer: {
+  header: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 15,
-  },
-
-  cardGrid: {
-    width: 145,
-    height: 120,
-    borderRadius: 22,
-    padding: 15,
-    margin: 8,
-    justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  iconeGrid: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
-
-  textoCardGrid: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#444',
-    textAlign: 'center',
-  },
-
-  botao: {
-    backgroundColor: '#9BC6B8',
-    padding: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    width: 220,
-    alignSelf: 'center',
-    marginTop: 35,
+    paddingHorizontal: 20,
     marginBottom: 20,
   },
-
-  textoBotao: {
+  botaoVoltar: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  tituloHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 15,
+    color: '#2c3e50',
+  },
+  conteudo: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  cardAnsiedade: {
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    marginBottom: 20,
+    elevation: 3,
+  },
+  labelAnsiedade: {
     color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  textoAnsiedade: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  cardMetrica: {
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 15,
+    elevation: 2,
+  },
+  infoMetrica: {
+    marginLeft: 20,
+  },
+  labelMetrica: {
+    fontSize: 14,
+    color: '#7f8c8d',
+  },
+  valorMetrica: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+  },
+  unidade: {
+    fontSize: 16,
+    color: '#95a5a6',
+    fontWeight: 'normal',
   },
 });
