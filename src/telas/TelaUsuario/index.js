@@ -6,11 +6,40 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
+// ⚠️ Mude para o seu IP local (ex: '192.168.1.15' ou '10.0.2.2' para Emulador Android)
+const IP_SERVIDOR = 'localhost';
+
 export default function TelaUsuario({ navigation }) {
+
+  // ⚡ FUNÇÃO DE LOGOUT COMPLETA
+  const handleLogout = async () => {
+    try {
+      // 1. Avisa o backend PHP para zerar o usuario_id da sessão ativa do sensor
+      await fetch(`http://localhost/axon/logout.php`);
+
+      // 2. Apaga as informações salvas no celular
+      await AsyncStorage.removeItem('usuario');
+
+      // 3. Redireciona o usuário de volta para a tela inicial / login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Principal' }], // Mude para 'TelaLogin' se a sua rota inicial for essa
+      });
+    } catch (error) {
+      // Caso não haja rede, força o redirecionamento localmente
+      await AsyncStorage.removeItem('usuario');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Principal' }],
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
 
@@ -18,16 +47,13 @@ export default function TelaUsuario({ navigation }) {
       <TouchableOpacity
         style={styles.botaoMenu}
         onPress={() => {
-          // Procura o navegador pai (o Drawer) para forçar a abertura
           const drawerPai = navigation.getParent();
 
           if (drawerPai && typeof drawerPai.openDrawer === 'function') {
             drawerPai.openDrawer();
           } else {
-            // Se ele perder a referência por completo na volta, recarrega o Drawer
             navigation.navigate('Tela1', { screen: 'TelaUsuario' });
 
-            // Um pequeno delay para dar tempo de renderizar e abrir o menu
             setTimeout(() => {
               navigation.openDrawer();
             }, 50);
@@ -89,16 +115,12 @@ export default function TelaUsuario({ navigation }) {
             onPress={() => navigation.navigate('TelaAjuda')}
           />
 
+          {/* BOTÃO SAIR COM A AÇÃO INTEGRADAS */}
           <MenuItem
             icon="log-out-outline"
             text="Sair"
             danger
-            onPress={() => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Principal' }],
-              });
-            }}
+            onPress={handleLogout}
           />
 
         </View>
@@ -139,7 +161,6 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
 
-  /* BOTÃO MENU */
   botaoMenu: {
     position: 'absolute',
     top: 55,
@@ -198,11 +219,6 @@ const styles = StyleSheet.create({
   moods: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-  },
-
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
 
   menuCard: {
