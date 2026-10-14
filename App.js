@@ -35,6 +35,8 @@ import TelaComoUsar from './src/telas/TelaComoUsar';
 import TelaMetas from './src/telas/TelaMetas';
 import TelaMotivacao from './src/telas/TelaMotivacao';
 import TelaInfoNovidades from './src/telas/TelaInfoNovidades';
+import TelaDicas from './src/telas/TelaDicas';
+import TelaSensor from './src/telas/TelaSensor';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -45,9 +47,9 @@ function DrawerRoutes() {
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
-        // Mantido exatamente como você deixou
         swipeEnabled: false,
         gestureEnabled: false,
+        sceneContainerStyle: { flex: 1 }, // Garantia de flex para telas dentro do Drawer
         drawerStyle: {
           backgroundColor: '#fff',
           width: 260,
@@ -55,7 +57,6 @@ function DrawerRoutes() {
       }}
     >
       <Drawer.Screen name="Home" component={Tela1} />
-      {/* Mudado aqui apenas para coincidir com o componente */}
       <Drawer.Screen name="TelaUsuario" component={TelaUsuario} />
     </Drawer.Navigator>
   );
@@ -70,6 +71,7 @@ export default function App() {
           initialRouteName="Principal"
           screenOptions={{
             headerShown: false,
+            cardStyle: { flex: 1 }, // 👈 ESTA LINHA LIBERTA O SCROLL DE TODAS AS TELAS DO STACK!
           }}
         >
           <Stack.Screen name="Principal" component={Principal} />
@@ -98,6 +100,8 @@ export default function App() {
           <Stack.Screen name="TelaApoio" component={TelaApoio}/>
           <Stack.Screen name="TelaComoUsar" component={TelaComoUsar}/>
           <Stack.Screen name="TelaMetas" component={TelaMetas}/>
+          <Stack.Screen name="TelaDicas" component={TelaDicas}/>
+          <Stack.Screen name="TelaSensor" component={TelaSensor}/>
           <Stack.Screen name="TelaMotivacao" component={TelaMotivacao}/>
           <Stack.Screen name="TelaInfoNovidades" component={TelaInfoNovidades}/>
 

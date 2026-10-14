@@ -23,12 +23,10 @@ import { useNavigation } from '@react-navigation/native';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function TelaDispositivo() {
-
   const navigation = useNavigation();
   const [dispositivo, setDispositivo] = React.useState(null);
 
   React.useEffect(() => {
-
     const carregar = async () => {
       try {
         const data = await AsyncStorage.getItem("dispositivo");
@@ -38,7 +36,6 @@ export default function TelaDispositivo() {
         } else {
           setDispositivo(null);
         }
-
       } catch (err) {
         console.log(err);
         setDispositivo(null);
@@ -49,7 +46,6 @@ export default function TelaDispositivo() {
     carregar();
 
     return unsubscribe;
-
   }, [navigation]);
 
   const desconectar = async () => {
@@ -64,12 +60,10 @@ export default function TelaDispositivo() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
       >
-
         <View style={styles.content}>
 
           {/* HEADER */}
           <View style={styles.header}>
-
             <TouchableOpacity onPress={() => navigation.navigate('TelaUsuario')}>
               <Ionicons name="arrow-back" size={24} color="#4B3FAF" />
             </TouchableOpacity>
@@ -86,19 +80,18 @@ export default function TelaDispositivo() {
             Conecte seu relógio para acompanhar seus dados em tempo real.
           </Text>
 
-          {/* CARD */}
+          {/* CARD PRINCIPAL */}
           <View style={styles.mainCard}>
 
             <View style={styles.watchSection}>
               <View style={styles.watchCircle}>
-
                 <MaterialCommunityIcons
                   name="watch-variant"
                   size={90}
                   color="#B69CFF"
                 />
 
-                {/* 🔥 STATUS (QUADRADO COLORIDO) */}
+                {/* STATUS (QUADRADO COLORIDO) */}
                 <View style={styles.statusBox(!!dispositivo)}>
                   <Text style={styles.statusText}>
                     {dispositivo
@@ -106,11 +99,10 @@ export default function TelaDispositivo() {
                       : 'Desconectado'}
                   </Text>
                 </View>
-
               </View>
             </View>
 
-            {/* BENEFÍCIOS */}
+            {/* BENEFÍCIOS E BOTÕES */}
             <View style={styles.benefitsSection}>
 
               <Text style={styles.benefitsTitle}>
@@ -121,19 +113,35 @@ export default function TelaDispositivo() {
               <Text style={styles.benefit}>✔ Estresse em tempo real</Text>
               <Text style={styles.benefit}>✔ Lembretes de autocuidado</Text>
 
+              {/* 📊 BOTÃO NAVEGANDO PARA A TELA SENSOR */}
+              {dispositivo && (
+                <TouchableOpacity
+                  style={styles.sensorDataButton}
+                  onPress={() => navigation.navigate('TelaSensor')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="pulse-outline" size={20} color="#8B6DFF" />
+                  <Text style={styles.sensorDataButtonText}>
+                    Ver Dados do Sensor (BPM / SpO2)
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {/* BOTÃO PARA CONECTAR NOVO DISPOSITIVO */}
               <TouchableOpacity
                 style={styles.connectButton}
                 onPress={() => navigation.navigate('TelaConexao')}
+                activeOpacity={0.8}
               >
-                
                 <Text style={styles.connectButtonText}>
-                  Conectar novo dispositivo
+                  {dispositivo ? 'Trocar de dispositivo' : 'Conectar novo dispositivo'}
                 </Text>
               </TouchableOpacity>
 
+              {/* BOTÃO DE DESCONECTAR */}
               {dispositivo && (
-                <TouchableOpacity onPress={desconectar}>
-                  <Text style={{ color: 'red', textAlign: 'center', marginTop: 15 }}>
+                <TouchableOpacity onPress={desconectar} activeOpacity={0.7}>
+                  <Text style={styles.disconnectText}>
                     Desconectar dispositivo
                   </Text>
                 </TouchableOpacity>
@@ -148,8 +156,8 @@ export default function TelaDispositivo() {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
 
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: SCREEN_HEIGHT,
@@ -212,7 +220,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 
-  // 🔥 QUADRADO DE STATUS (VERDE/VERMELHO)
   statusBox: (conectado) => ({
     position: 'absolute',
     bottom: -12,
@@ -246,6 +253,25 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
+  sensorDataButton: {
+    backgroundColor: '#F0EBFF',
+    borderWidth: 1,
+    borderColor: '#8B6DFF',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+
+  sensorDataButtonText: {
+    color: '#8B6DFF',
+    fontWeight: 'bold',
+    marginLeft: 8,
+    fontSize: 14,
+  },
+
   connectButton: {
     backgroundColor: '#8B6DFF',
     flexDirection: 'row',
@@ -253,12 +279,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderRadius: 12,
-    marginTop: 20,
+    marginTop: 12,
   },
 
   connectButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    marginLeft: 8,
+  },
+
+  disconnectText: {
+    color: '#FF4D4D',
+    textAlign: 'center',
+    marginTop: 15,
+    fontWeight: '600',
   },
 });

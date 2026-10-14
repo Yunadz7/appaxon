@@ -1,810 +1,470 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import React, { useState } from 'react';
 import {
-  Text,
   View,
+  Text,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  ImageBackground,
-  Image,
-  ScrollView,
+  TextInput,
+  Share,
+  Keyboard,
 } from 'react-native';
 
-import { useFocusEffect } from '@react-navigation/native';
+export default function TelaMotivacao({ navigation }) {
+  // Base de dados de frases categorizadas por estado emocional
+  const bancoFrases = {
+    ansioso: [
+      "A ansiedade é apenas um alarme falso do seu corpo. Você está em segurança agora.",
+      "Você não precisa controlar tudo neste exato segundo. Deixe o momento fluir.",
+      "O seu corpo sabe como voltar à calma. Confia no ritmo da sua respiração.",
+    ],
+    cansado: [
+      "Não precisa carregar o mundo nas costas. Resolva apenas a tarefa que está à sua frente.",
+      "Fazer uma pausa não é perder tempo, é recarregar a sua energia.",
+      "Dizer 'não' a excessos é dizer 'sim' à sua saúde mental e física.",
+    ],
+    inseguro: [
+      "Você já superou 100% dos seus dias difíceis. Tem mais força do que imagina.",
+      "Erros e pausas não anulam o seu valor. Continue no seu próprio ritmo.",
+      "Trate-se hoje com o mesmo carinho e paciência que daria a um amigo querido.",
+    ],
+    foco: [
+      "Sinta os seus pés firmes no chão. Traga a sua mente de volta para o presente.",
+      "Um passo pequeno de cada vez constrói o seu caminho com clareza.",
+      "Sintonize a sua atenção no aqui e agora. O passado já foi, o futuro virá a seu tempo.",
+    ],
+  };
 
-// ========================================
-// URL DA API
-// ========================================
+  const [categoriaAtiva, setCategoriaAtiva] = useState('ansioso');
+  const [indiceFrase, setIndiceFrase] = useState(0);
+  const [passosRespiracao, setPassosRespiracao] = useState(0);
 
-const API_URL = 'http://localhost/axon_api';
+  // Estado para afirmação personalizada
+  const [afirmacaoPessoal, setAfirmacaoPessoal] = useState('');
+  const [afirmacaoSalva, setAfirmacaoSalva] = useState(null);
 
-export default function Tela1({ navigation }) {
+  // Trocar de frase dentro da mesma categoria
+  const proximaFrase = () => {
+    const lista = bancoFrases[categoriaAtiva];
+    const proximo = (indiceFrase + 1) % lista.length;
+    setIndiceFrase(proximo);
+    setPassosRespiracao(0);
+  };
 
-  const [atividades, setAtividades] = useState([]);
-  const [nome, setNome] = useState("Usuário");
+  // Mudar categoria
+  const trocarCategoria = (cat) => {
+    setCategoriaAtiva(cat);
+    setIndiceFrase(0);
+    setPassosRespiracao(0);
+  };
 
-  // Consultas do usuário logado
-  const [consultas, setConsultas] = useState([]);
-
-  // ========================================
-  // CARREGAR DADOS INICIAIS
-  // ========================================
-
-  useEffect(() => {
-    carregarUsuario();
-    carregarAtividades();
-  }, []);
-
-  // ========================================
-  // CARREGAR CONSULTAS
-  // ========================================
-
-  const carregarConsultas = async () => {
-
+  // Partilhar frase
+  const partilhar = async () => {
     try {
-
-      const dadosUsuario =
-        await AsyncStorage.getItem("usuario");
-
-      if (!dadosUsuario) {
-
-        console.log(
-          "Usuário não encontrado."
-        );
-
-        setConsultas([]);
-
-        return;
-      }
-
-      const usuario =
-        JSON.parse(dadosUsuario);
-
-      console.log(
-        "Usuário na Tela1:",
-        usuario
-      );
-
-      const id_usuario =
-        usuario.id_usuario;
-
-      if (!id_usuario) {
-
-        console.log(
-          "ID do usuário não encontrado."
-        );
-
-        setConsultas([]);
-
-        return;
-      }
-
-      const url =
-        `${API_URL}/consulta.php?id_usuario=${id_usuario}`;
-
-      console.log(
-        "Buscando consultas:",
-        url
-      );
-
-      const response =
-        await fetch(url);
-
-      if (!response.ok) {
-
-        throw new Error(
-          "Erro HTTP: " +
-          response.status
-        );
-      }
-
-      const dadosConsultas =
-        await response.json();
-
-      console.log(
-        "RESPOSTA CONSULTAS:",
-        dadosConsultas
-      );
-
-      if (Array.isArray(dadosConsultas)) {
-
-        setConsultas(
-          dadosConsultas
-        );
-
-      } else {
-
-        setConsultas([]);
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar consultas:",
-        erro
-      );
-
-      setConsultas([]);
-
+      await Share.share({
+        message: `"${bancoFrases[categoriaAtiva][indiceFrase]}" — AXON`,
+      });
+    } catch (e) {
+      console.log(e);
     }
   };
 
-  // ========================================
-  // ATUALIZAR AO VOLTAR PARA TELA1
-  // ========================================
-
-  useFocusEffect(
-    useCallback(() => {
-
-      carregarConsultas();
-
-    }, [])
-  );
-
-  // ========================================
-  // CARREGAR ATIVIDADES
-  // ========================================
-
-  const carregarAtividades = async () => {
-
-    try {
-
-      const dados =
-        await AsyncStorage.getItem(
-          "atividades"
-        );
-
-      if (dados) {
-
-        setAtividades(
-          JSON.parse(dados)
-        );
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar atividades:",
-        erro
-      );
-
+  const salvarAfirmacao = () => {
+    if (afirmacaoPessoal.trim() !== '') {
+      setAfirmacaoSalva(afirmacaoPessoal);
+      setAfirmacaoPessoal('');
+      Keyboard.dismiss();
     }
   };
 
-  // ========================================
-  // CARREGAR USUÁRIO
-  // ========================================
-
-  const carregarUsuario = async () => {
-
-    try {
-
-      const dados =
-        await AsyncStorage.getItem(
-          "usuario"
-        );
-
-      if (dados) {
-
-        const usuario =
-          JSON.parse(dados);
-
-        setNome(
-          usuario.nome || "Usuário"
-        );
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar usuário:",
-        erro
-      );
-
-    }
-  };
-
-  // ========================================
-  // ATIVIDADES PENDENTES
-  // ========================================
-
-  const pendentes =
-    atividades.filter(
-      item =>
-        item.concluida == false ||
-        item.concluida == 0 ||
-        item.concluida === undefined
-    );
-
-  // ========================================
-  // TELA
-  // ========================================
+  const fraseAtual = bancoFrases[categoriaAtiva][indiceFrase];
 
   return (
-
-    <ImageBackground
-      source={require('../../../assets/img_fundo.png')}
-      style={styles.background}
-      resizeMode="cover"
+    <ScrollView
+      style={styles.scrollArea}
+      contentContainerStyle={styles.scrollConteudo}
+      showsVerticalScrollIndicator={true}
+      keyboardShouldPersistTaps="handled"
     >
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
+      {/* BOTÃO VOLTAR */}
+      <TouchableOpacity
+        style={styles.botaoVoltar}
+        onPress={() => navigation.navigate('TelaNovidades')}
+        activeOpacity={0.7}
       >
+        <Text style={styles.textoBotaoVoltar}>← Voltar para Informativos</Text>
+      </TouchableOpacity>
 
-        {/* ==================================
-            MENU
-        ================================== */}
+      {/* CABEÇALHO */}
+      <Text style={styles.titulo}>✨ Lembretes & Afirmações</Text>
+      <Text style={styles.subtitulo}>
+        Escolha como está se sentindo para receber uma orientação rápida e criar a sua própria afirmação do dia.
+      </Text>
 
-        <TouchableOpacity
-          style={styles.botaoMenu}
-          onPress={() =>
-            navigation.openDrawer()
-          }
-        >
-
-          <Text style={styles.textoMenu}>
-            ☰
-          </Text>
-
-        </TouchableOpacity>
-
-
-        {/* ==================================
-            LOGO
-        ================================== */}
-
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={styles.logo}
-        />
-
-
-        {/* ==================================
-            SAUDAÇÃO
-        ================================== */}
-
-        <Text style={styles.textoBomDia}>
-          Olá, {nome}
-        </Text>
-
-
-        {/* ==================================
-            CARDS FIXOS
-        ================================== */}
-
-        <View style={styles.linhaCards}>
-
+      {/* SELETOR DE ESTADO EMOCIONAL */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.containerMoods}
+      >
+        {[
+          { key: 'ansioso', label: '😰 Ansioso' },
+          { key: 'cansado', label: '🫨 Cansado' },
+          { key: 'inseguro', label: '💙 Inseguro' },
+          { key: 'foco', label: '🧘 Preciso de Foco' },
+        ].map((item) => (
           <TouchableOpacity
-            style={styles.cardVerde}
-            onPress={() =>
-              navigation.navigate(
-                'TelaConsulta'
-              )
-            }
+            key={item.key}
+            style={[
+              styles.chipMood,
+              categoriaAtiva === item.key && styles.chipMoodAtivo,
+            ]}
+            onPress={() => trocarCategoria(item.key)}
+            activeOpacity={0.8}
           >
-
-            <Text style={styles.textoCard}>
-              Consulta
-            </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={styles.cardAzul}
-            onPress={() =>
-              navigation.navigate(
-                'TelaAtividades'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Atividades
-            </Text>
-
-          </TouchableOpacity>
-
-        </View>
-
-
-        <View style={styles.linhaCards}>
-
-          <TouchableOpacity
-            style={styles.cardCinza}
-            onPress={() =>
-              navigation.navigate(
-                'TelaRegistro'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Registro
-            </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={styles.cardRoxo}
-            onPress={() =>
-              navigation.navigate(
-                'TelaNovidades'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Novidades e dicas
-            </Text>
-
-          </TouchableOpacity>
-
-        </View>
-
-
-        {/* ==================================
-            SUGESTÕES
-        ================================== */}
-
-        <Text style={styles.tituloSugestao}>
-          Sugestões →
-        </Text>
-
-
-        {/* ==================================
-            CONSULTAS
-        ================================== */}
-
-        {/* ==================================
-    CONSULTAS
-================================== */}
-
-{consultas.length > 0 && (
-
-  consultas.map((consulta) => (
-
-    <View
-      key={String(consulta.id_consulta)}
-      style={styles.cardConsulta}
-    >
-
-      <View style={styles.linhaConsulta}>
-
-        <Text style={styles.iconeConsulta}>
-          🩺
-        </Text>
-
-        <View style={styles.infoConsulta}>
-
-          <Text style={styles.tituloConsulta}>
-            Consulta agendada
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            👨‍⚕️ {consulta.medico || "Médico não informado"}
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            📅 {consulta.data_consulta}
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            🕐 {consulta.horario}
-          </Text>
-
-        </View>
-
-      </View>
-
-      <View style={styles.avisoConsulta}>
-
-        <Text style={styles.textoAvisoConsulta}>
-          Consulta marcada
-        </Text>
-
-      </View>
-
-    </View>
-
-  ))
-
-)}
-
-        {/* ==================================
-            ATIVIDADES PENDENTES
-        ================================== */}
-
-        {pendentes.length === 0 ? (
-
-          consultas.length === 0 && (
-
             <Text
-              style={
-                styles.nenhumaAtividade
-              }
+              style={[
+                styles.textoChipMood,
+                categoriaAtiva === item.key && styles.textoChipMoodAtivo,
+              ]}
             >
-              Nenhuma atividade pendente 🎉
+              {item.label}
             </Text>
-
-          )
-
-        ) : (
-
-          pendentes.map(item => (
-
-            <TouchableOpacity
-              key={item.id}
-              style={styles.cardSugestao}
-            >
-
-              <Text
-                style={styles.textoSugestao}
-              >
-                {item.nome}
-              </Text>
-
-              <View
-                style={styles.hojeBox}
-              >
-
-                <Text
-                  style={styles.textoHoje}
-                >
-                  Hoje
-                </Text>
-
-              </View>
-
-            </TouchableOpacity>
-
-          ))
-
-        )}
-
-        {/* Espaço no final */}
-
-        <View
-          style={{
-            height: 40
-          }}
-        />
-
+          </TouchableOpacity>
+        ))}
       </ScrollView>
 
-    </ImageBackground>
+      {/* CARD PRINCIPAL DA FRASE */}
+      <View style={styles.cardFrase}>
+        <Text style={styles.simboloAspas}>“</Text>
+        <Text style={styles.textoFrasePrincipal}>{fraseAtual}</Text>
+
+        {/* EXERCÍCIO RÁPIDO DE RESPIRAÇÃO INCORPORADO */}
+        <TouchableOpacity
+          style={styles.caixaRespiracao}
+          onPress={() => setPassosRespiracao((prev) => (prev < 3 ? prev + 1 : 0))}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.textoRespiracao}>
+            {passosRespiracao === 0 && '🫁 Toque aqui para 3 respirações guiadas'}
+            {passosRespiracao === 1 && '1. Inspire devagar pelo nariz... (Segure 3s)'}
+            {passosRespiracao === 2 && '2. Solte todo o ar pela boca suavemente...'}
+            {passosRespiracao === 3 && '✨ Muito bem! Sinta o seu corpo retornar ao ritmo.'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* BOTÕES DE AÇÃO */}
+        <View style={styles.gridAcoes}>
+          <TouchableOpacity
+            style={styles.botaoAcaoSecundario}
+            onPress={partilhar}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.textoAcaoSecundario}>📤 Partilhar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.botaoAcaoPrincipal}
+            onPress={proximaFrase}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.textoAcaoPrincipal}>Nova Frase 🎲</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* SEÇÃO INTERATIVA: MINHA AFIRMAÇÃO PESSOAL */}
+      <View style={styles.cardAfirmacao}>
+        <Text style={styles.tituloAfirmacao}>✍️ Escreva o seu Lembrete Pessoal</Text>
+        <Text style={styles.descAfirmacao}>
+          O que você precisa dizer a si mesmo hoje?
+        </Text>
+
+        <TextInput
+          style={styles.inputAfirmacao}
+          placeholder="Ex: Hoje vou fazer as coisas no meu tempo..."
+          placeholderTextColor="#90A4AE"
+          value={afirmacaoPessoal}
+          onChangeText={setAfirmacaoPessoal}
+        />
+
+        <TouchableOpacity
+          style={styles.botaoSalvarAfirmacao}
+          onPress={salvarAfirmacao}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.textoBotaoSalvar}>Guardar Afirmação</Text>
+        </TouchableOpacity>
+
+        {afirmacaoSalva && (
+          <View style={styles.caixaAfirmacaoSalva}>
+            <Text style={styles.tituloSalvo}>🌟 Sua Afirmação de Hoje:</Text>
+            <Text style={styles.textoSalvo}>"{afirmacaoSalva}"</Text>
+          </View>
+        )}
+      </View>
+
+      {/* DICA FISIOLÓGICA */}
+      <View style={styles.cardInfo}>
+        <Text style={styles.tituloInfo}>🧠 Por que isto ajuda?</Text>
+        <Text style={styles.textoInfo}>
+          Ler frases de acolhimento e escrever o seu próprio pensamento interrompe o ciclo de pensamentos automáticos no cérebro, reduzindo a liberação de cortisol e estabilizando a frequência cardíaca.
+        </Text>
+      </View>
+
+      <View style={styles.espacoFinal} />
+    </ScrollView>
   );
 }
 
-
-// ========================================
-// ESTILOS
-// ========================================
-
 const styles = StyleSheet.create({
-
-  background: {
+  scrollArea: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
     width: '100%',
-    height: '100%',
   },
 
-
-  // ========================================
-  // MENU
-  // ========================================
-
-  botaoMenu: {
-    marginTop: 20,
-    marginLeft: 20,
-
-    width: 45,
-    height: 45,
-
-    borderRadius: 12,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    position: 'absolute',
-
-    zIndex: 999,
+  scrollConteudo: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 80,
   },
 
-  textoMenu: {
-    fontSize: 28,
-    color: '#555',
-    marginTop: -2,
+  botaoVoltar: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ECEFF1',
+    borderRadius: 8,
+    marginBottom: 16,
   },
 
-
-  // ========================================
-  // LOGO
-  // ========================================
-
-  logo: {
-    width: 370,
-    height: 200,
-
-    resizeMode: 'contain',
-
-    marginTop: -30,
-    marginLeft: 20,
-  },
-
-
-  // ========================================
-  // SAUDAÇÃO
-  // ========================================
-
-  textoBomDia: {
-    fontSize: 24,
-
-    color: '#000',
-
-    marginTop: -10,
-    marginLeft: 20,
-
-    fontWeight: '400',
-  },
-
-
-  // ========================================
-  // CARDS FIXOS
-  // ========================================
-
-  linhaCards: {
-    flexDirection: 'row',
-
-    justifyContent: 'center',
-
-    marginTop: 20,
-  },
-
-  cardVerde: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 15,
-
-    marginRight: 10,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardAzul: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#CBEFF2',
-
-    borderRadius: 15,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardCinza: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#DDE4F6',
-
-    borderRadius: 15,
-
-    marginRight: 10,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardRoxo: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#DCD8FA',
-
-    borderRadius: 15,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  textoCard: {
-    fontSize: 16,
-
-    color: '#333',
-
-    lineHeight: 22,
-
-    marginLeft: 40,
-  },
-
-
-  // ========================================
-  // SUGESTÕES
-  // ========================================
-
-  tituloSugestao: {
-    fontSize: 16,
-
-    color: '#444',
-
-    marginTop: 30,
-    marginLeft: 25,
-
-    fontWeight: '500',
-  },
-
-
-  // ========================================
-  // CARD DA CONSULTA
-  // ========================================
-
-  cardConsulta: {
-    width: 330,
-
-    backgroundColor: '#FFFFFF',
-
-    borderRadius: 15,
-
-    alignSelf: 'center',
-
-    marginTop: 15,
-
-    padding: 15,
-
-    borderWidth: 1,
-
-    borderColor: '#9BC6B8',
-
-    elevation: 3,
-
-    shadowColor: '#000',
-
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
-    shadowOpacity: 0.1,
-
-    shadowRadius: 4,
-  },
-
-
-  linhaConsulta: {
-    flexDirection: 'row',
-
-    alignItems: 'flex-start',
-  },
-
-
-  iconeConsulta: {
-    fontSize: 30,
-
-    marginRight: 12,
-  },
-
-
-  infoConsulta: {
-    flex: 1,
-  },
-
-
-  tituloConsulta: {
-    fontSize: 17,
-
-    fontWeight: 'bold',
-
-    color: '#4f5b8a',
-
-    marginBottom: 8,
-  },
-
-
-  textoConsulta: {
+  textoBotaoVoltar: {
     fontSize: 14,
-
-    color: '#555',
-
-    marginBottom: 5,
+    fontWeight: '600',
+    color: '#37474F',
   },
 
+  titulo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 6,
+  },
 
-  avisoConsulta: {
-    marginTop: 10,
+  subtitulo: {
+    fontSize: 14,
+    color: '#7F8C8D',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
 
-    backgroundColor: '#D9F0C7',
+  /* CHIPS DE MOOD */
+  containerMoods: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
 
+  chipMood: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+
+  chipMoodAtivo: {
+    backgroundColor: '#37474F',
+    borderColor: '#37474F',
+  },
+
+  textoChipMood: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#555',
+  },
+
+  textoChipMoodAtivo: {
+    color: '#FFFFFF',
+  },
+
+  /* CARD DA FRASE */
+  cardFrase: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 22,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ECEFF1',
+  },
+
+  simboloAspas: {
+    fontSize: 42,
+    color: '#90A4AE',
+    fontWeight: 'bold',
+    lineHeight: 32,
+    marginBottom: 4,
+  },
+
+  textoFrasePrincipal: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#263238',
+    lineHeight: 25,
+    marginBottom: 18,
+  },
+
+  caixaRespiracao: {
+    backgroundColor: '#E8F5E9',
+    padding: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+
+  textoRespiracao: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#2E7D32',
+    textAlign: 'center',
+  },
+
+  gridAcoes: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  botaoAcaoSecundario: {
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 10,
-
-    paddingVertical: 7,
-
+    flex: 0.45,
     alignItems: 'center',
   },
 
+  textoAcaoSecundario: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#455A64',
+  },
 
-  textoAvisoConsulta: {
+  botaoAcaoPrincipal: {
+    backgroundColor: '#00897B',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    flex: 0.5,
+    alignItems: 'center',
+  },
+
+  textoAcaoPrincipal: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+
+  /* CARD AFIRMAÇÃO PESSOAL */
+  cardAfirmacao: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+
+  tituloAfirmacao: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 4,
+  },
+
+  descAfirmacao: {
     fontSize: 12,
+    color: '#78909C',
+    marginBottom: 12,
+  },
 
-    color: '#4f5b8a',
+  inputAfirmacao: {
+    backgroundColor: '#F5F7F8',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 13,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#CFD8DC',
+    marginBottom: 10,
+  },
 
+  botaoSalvarAfirmacao: {
+    backgroundColor: '#5C6BC0',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+
+  textoBotaoSalvar: {
+    color: '#FFFFFF',
+    fontSize: 13,
     fontWeight: 'bold',
   },
 
-
-  // ========================================
-  // ATIVIDADES
-  // ========================================
-
-  nenhumaAtividade: {
-    textAlign: 'center',
-
-    marginTop: 20,
-
-    color: '#666',
-  },
-
-
-  cardSugestao: {
-    width: 300,
-
-    height: 60,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 15,
-
-    alignSelf: 'center',
-
-    marginTop: 15,
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    justifyContent: 'space-between',
-
-    paddingHorizontal: 20,
-  },
-
-
-  textoSugestao: {
-    fontSize: 15,
-
-    color: '#333',
-  },
-
-
-  hojeBox: {
-    backgroundColor: '#C8E6B8',
-
+  caixaAfirmacaoSalva: {
+    marginTop: 14,
+    backgroundColor: '#E8EAF6',
+    padding: 12,
     borderRadius: 10,
-
-    paddingHorizontal: 10,
-
-    paddingVertical: 5,
+    borderLeftWidth: 4,
+    borderLeftColor: '#3F51B5',
   },
 
-
-  textoHoje: {
+  tituloSalvo: {
     fontSize: 12,
-
-    color: '#444',
+    fontWeight: 'bold',
+    color: '#1A237E',
+    marginBottom: 2,
   },
 
+  textoSalvo: {
+    fontSize: 13,
+    color: '#283593',
+    fontStyle: 'italic',
+  },
+
+  /* CARD INFO */
+  cardInfo: {
+    backgroundColor: '#EFEBE9',
+    borderRadius: 16,
+    padding: 16,
+  },
+
+  tituloInfo: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#4E342E',
+    marginBottom: 6,
+  },
+
+  textoInfo: {
+    fontSize: 13,
+    color: '#5D4037',
+    lineHeight: 18,
+  },
+
+  espacoFinal: {
+    height: 60,
+    width: '100%',
+  },
 });

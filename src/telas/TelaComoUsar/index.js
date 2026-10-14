@@ -1,810 +1,275 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import React, { useState } from 'react';
 import {
-  Text,
   View,
+  Text,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  ImageBackground,
-  Image,
-  ScrollView,
+  Modal,
+  Pressable,
 } from 'react-native';
 
-import { useFocusEffect } from '@react-navigation/native';
+export default function TelaComoUsar({ navigation }) {
+  const [secaoAtiva, setSecaoAtiva] = useState(null);
 
-// ========================================
-// URL DA API
-// ========================================
-
-const API_URL = 'http://localhost/axon_api';
-
-export default function Tela1({ navigation }) {
-
-  const [atividades, setAtividades] = useState([]);
-  const [nome, setNome] = useState("Usuário");
-
-  // Consultas do usuário logado
-  const [consultas, setConsultas] = useState([]);
-
-  // ========================================
-  // CARREGAR DADOS INICIAIS
-  // ========================================
-
-  useEffect(() => {
-    carregarUsuario();
-    carregarAtividades();
-  }, []);
-
-  // ========================================
-  // CARREGAR CONSULTAS
-  // ========================================
-
-  const carregarConsultas = async () => {
-
-    try {
-
-      const dadosUsuario =
-        await AsyncStorage.getItem("usuario");
-
-      if (!dadosUsuario) {
-
-        console.log(
-          "Usuário não encontrado."
-        );
-
-        setConsultas([]);
-
-        return;
-      }
-
-      const usuario =
-        JSON.parse(dadosUsuario);
-
-      console.log(
-        "Usuário na Tela1:",
-        usuario
-      );
-
-      const id_usuario =
-        usuario.id_usuario;
-
-      if (!id_usuario) {
-
-        console.log(
-          "ID do usuário não encontrado."
-        );
-
-        setConsultas([]);
-
-        return;
-      }
-
-      const url =
-        `${API_URL}/consulta.php?id_usuario=${id_usuario}`;
-
-      console.log(
-        "Buscando consultas:",
-        url
-      );
-
-      const response =
-        await fetch(url);
-
-      if (!response.ok) {
-
-        throw new Error(
-          "Erro HTTP: " +
-          response.status
-        );
-      }
-
-      const dadosConsultas =
-        await response.json();
-
-      console.log(
-        "RESPOSTA CONSULTAS:",
-        dadosConsultas
-      );
-
-      if (Array.isArray(dadosConsultas)) {
-
-        setConsultas(
-          dadosConsultas
-        );
-
-      } else {
-
-        setConsultas([]);
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar consultas:",
-        erro
-      );
-
-      setConsultas([]);
-
-    }
+  const toggleSecao = (id) => {
+    setSecaoAtiva((atual) => (atual === id ? null : id));
   };
-
-  // ========================================
-  // ATUALIZAR AO VOLTAR PARA TELA1
-  // ========================================
-
-  useFocusEffect(
-    useCallback(() => {
-
-      carregarConsultas();
-
-    }, [])
-  );
-
-  // ========================================
-  // CARREGAR ATIVIDADES
-  // ========================================
-
-  const carregarAtividades = async () => {
-
-    try {
-
-      const dados =
-        await AsyncStorage.getItem(
-          "atividades"
-        );
-
-      if (dados) {
-
-        setAtividades(
-          JSON.parse(dados)
-        );
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar atividades:",
-        erro
-      );
-
-    }
-  };
-
-  // ========================================
-  // CARREGAR USUÁRIO
-  // ========================================
-
-  const carregarUsuario = async () => {
-
-    try {
-
-      const dados =
-        await AsyncStorage.getItem(
-          "usuario"
-        );
-
-      if (dados) {
-
-        const usuario =
-          JSON.parse(dados);
-
-        setNome(
-          usuario.nome || "Usuário"
-        );
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar usuário:",
-        erro
-      );
-
-    }
-  };
-
-  // ========================================
-  // ATIVIDADES PENDENTES
-  // ========================================
-
-  const pendentes =
-    atividades.filter(
-      item =>
-        item.concluida == false ||
-        item.concluida == 0 ||
-        item.concluida === undefined
-    );
-
-  // ========================================
-  // TELA
-  // ========================================
 
   return (
-
-    <ImageBackground
-      source={require('../../../assets/img_fundo.png')}
-      style={styles.background}
-      resizeMode="cover"
+    <ScrollView
+      style={styles.scrollArea}
+      contentContainerStyle={styles.scrollConteudo}
+      showsVerticalScrollIndicator={true}
+      bounces={true}
+      nestedScrollEnabled={true}
+      keyboardShouldPersistTaps="handled"
     >
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
+      {/* BOTÃO VOLTAR */}
+      <TouchableOpacity
+        style={styles.botaoVoltar}
+        onPress={() => navigation.navigate('TelaNovidades')}
+        activeOpacity={0.7}
       >
+        <Text style={styles.textoBotaoVoltar}>← Voltar para Informativos</Text>
+      </TouchableOpacity>
 
-        {/* ==================================
-            MENU
-        ================================== */}
+      {/* CABEÇALHO */}
+      <Text style={styles.titulo}>📖 Como Usar o AXON</Text>
+      <Text style={styles.subtitulo}>
+        Aprenda a posicionar o dedo no sensor, conectar o dispositivo e garantir leituras precisas de BPM e SpO2.
+      </Text>
+
+      {/* PASSO 1: POSICIONAMENTO NO SENSOR */}
+      <View style={[styles.card, { backgroundColor: '#E8F5E9' }]}>
+        <Text style={styles.cardTitulo}>1. Posicionamento do Dedo no Sensor</Text>
+        <Text style={styles.cardDescricao}>
+          O sensor MAX30102 usa feixes de luz infravermelha para medir a pulsação no seu dedo.
+        </Text>
 
         <TouchableOpacity
-          style={styles.botaoMenu}
-          onPress={() =>
-            navigation.openDrawer()
-          }
+          style={styles.botaoAcao}
+          onPress={() => toggleSecao(1)}
+          activeOpacity={0.7}
         >
-
-          <Text style={styles.textoMenu}>
-            ☰
+          <Text style={styles.textoBotao}>
+            {secaoAtiva === 1 ? 'Recolher Dicas' : 'Ver Instruções'}
           </Text>
-
         </TouchableOpacity>
 
-
-        {/* ==================================
-            LOGO
-        ================================== */}
-
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={styles.logo}
-        />
-
-
-        {/* ==================================
-            SAUDAÇÃO
-        ================================== */}
-
-        <Text style={styles.textoBomDia}>
-          Olá, {nome}
-        </Text>
-
-
-        {/* ==================================
-            CARDS FIXOS
-        ================================== */}
-
-        <View style={styles.linhaCards}>
-
-          <TouchableOpacity
-            style={styles.cardVerde}
-            onPress={() =>
-              navigation.navigate(
-                'TelaConsulta'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Consulta
+        {secaoAtiva === 1 && (
+          <View style={styles.conteudoExpandido}>
+            <Text style={styles.passo}>
+              👉 **Toque Suave:** Apoie a ponta do indicador suavemente sobre o LED vermelho do sensor. Não aperte forte.
             </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={styles.cardAzul}
-            onPress={() =>
-              navigation.navigate(
-                'TelaAtividades'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Atividades
+            <Text style={styles.passo}>
+              🛑 **Mão Parada:** Mantenha a mão apoiada na mesa. Movimentos causam ruído no sinal e geram leituras incorretas.
             </Text>
-
-          </TouchableOpacity>
-
-        </View>
-
-
-        <View style={styles.linhaCards}>
-
-          <TouchableOpacity
-            style={styles.cardCinza}
-            onPress={() =>
-              navigation.navigate(
-                'TelaRegistro'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Registro
+            <Text style={styles.passo}>
+              🌡️ **Mãos Aquecidas:** Mãos muito frias contraem os vasos e dificultam a leitura. Esfregue as mãos antes de medir.
             </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={styles.cardRoxo}
-            onPress={() =>
-              navigation.navigate(
-                'TelaNovidades'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Novidades e dicas
-            </Text>
-
-          </TouchableOpacity>
-
-        </View>
-
-
-        {/* ==================================
-            SUGESTÕES
-        ================================== */}
-
-        <Text style={styles.tituloSugestao}>
-          Sugestões →
-        </Text>
-
-
-        {/* ==================================
-            CONSULTAS
-        ================================== */}
-
-        {/* ==================================
-    CONSULTAS
-================================== */}
-
-{consultas.length > 0 && (
-
-  consultas.map((consulta) => (
-
-    <View
-      key={String(consulta.id_consulta)}
-      style={styles.cardConsulta}
-    >
-
-      <View style={styles.linhaConsulta}>
-
-        <Text style={styles.iconeConsulta}>
-          🩺
-        </Text>
-
-        <View style={styles.infoConsulta}>
-
-          <Text style={styles.tituloConsulta}>
-            Consulta agendada
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            👨‍⚕️ {consulta.medico || "Médico não informado"}
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            📅 {consulta.data_consulta}
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            🕐 {consulta.horario}
-          </Text>
-
-        </View>
-
-      </View>
-
-      <View style={styles.avisoConsulta}>
-
-        <Text style={styles.textoAvisoConsulta}>
-          Consulta marcada
-        </Text>
-
-      </View>
-
-    </View>
-
-  ))
-
-)}
-
-        {/* ==================================
-            ATIVIDADES PENDENTES
-        ================================== */}
-
-        {pendentes.length === 0 ? (
-
-          consultas.length === 0 && (
-
-            <Text
-              style={
-                styles.nenhumaAtividade
-              }
-            >
-              Nenhuma atividade pendente 🎉
-            </Text>
-
-          )
-
-        ) : (
-
-          pendentes.map(item => (
-
-            <TouchableOpacity
-              key={item.id}
-              style={styles.cardSugestao}
-            >
-
-              <Text
-                style={styles.textoSugestao}
-              >
-                {item.nome}
-              </Text>
-
-              <View
-                style={styles.hojeBox}
-              >
-
-                <Text
-                  style={styles.textoHoje}
-                >
-                  Hoje
-                </Text>
-
-              </View>
-
-            </TouchableOpacity>
-
-          ))
-
+          </View>
         )}
+      </View>
 
-        {/* Espaço no final */}
+      {/* PASSO 2: CONEXÃO COM O ESP32 */}
+      <View style={[styles.card, { backgroundColor: '#E3F2FD' }]}>
+        <Text style={styles.cardTitulo}>2. Conectando o Dispositivo AXON</Text>
+        <Text style={styles.cardDescricao}>
+          Como sincronizar a placa ESP32 com o seu aplicativo.
+        </Text>
 
-        <View
-          style={{
-            height: 40
-          }}
-        />
+        <TouchableOpacity
+          style={styles.botaoAcao}
+          onPress={() => toggleSecao(2)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.textoBotao}>
+            {secaoAtiva === 2 ? 'Recolher Passo a Passo' : 'Ver Passo a Passo'}
+          </Text>
+        </TouchableOpacity>
 
-      </ScrollView>
+        {secaoAtiva === 2 && (
+          <View style={styles.conteudoExpandido}>
+            <Text style={styles.passo}>1. Ligue o dispositivo AXON no botão de energia.</Text>
+            <Text style={styles.passo}>2. Certifique-se de que o Bluetooth / Wi-Fi do celular está ligado.</Text>
+            <Text style={styles.passo}>3. No aplicativo, acesse a aba **Conexão** para parear o dispositivo.</Text>
+            <Text style={styles.passo}>4. Aguarde o LED de status piscar indicando sinal estável.</Text>
+          </View>
+        )}
+      </View>
 
-    </ImageBackground>
+      {/* PASSO 3: ENTENDENDO OS DADOS */}
+      <View style={[styles.card, { backgroundColor: '#F3E5F5' }]}>
+        <Text style={styles.cardTitulo}>3. Como Entender seus Resultados</Text>
+        <Text style={styles.cardDescricao}>
+          Entenda a diferença entre o que o sensor mede e o que você sente.
+        </Text>
+
+        <TouchableOpacity
+          style={styles.botaoAcao}
+          onPress={() => toggleSecao(3)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.textoBotao}>
+            {secaoAtiva === 3 ? 'Ocultar Explicação' : 'Entender Métrica'}
+          </Text>
+        </TouchableOpacity>
+
+        {secaoAtiva === 3 && (
+          <View style={styles.conteudoExpandido}>
+            <Text style={styles.bullet}>
+              ❤️ **BPM (Batimentos por Minuto):** Em repouso, o valor normal varia entre 60 e 100 BPM. Em picos de ansiedade, pode ultrapassar 100 BPM temporariamente.
+            </Text>
+            <Text style={styles.bullet}>
+              🫁 **SpO2 (Oxigenação do Sangue):** Valores normais ficam entre 95% e 100%. A sensação de falta de ar na ansiedade ocorre pela respiração curta, não por falta de oxigênio real.
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* PASSO 4: RESOLUÇÃO DE PROBLEMAS */}
+      <View style={[styles.card, { backgroundColor: '#FFF3E0' }]}>
+        <Text style={styles.cardTitulo}>🛠️ Resolução de Problemas Comuns</Text>
+        <Text style={styles.cardDescricao}>
+          O sensor não lê ou os valores parecem oscilar demais?
+        </Text>
+
+        <TouchableOpacity
+          style={styles.botaoAcao}
+          onPress={() => toggleSecao(4)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.textoBotao}>
+            {secaoAtiva === 4 ? 'Ocultar Soluções' : 'Ver Soluções'}
+          </Text>
+        </TouchableOpacity>
+
+        {secaoAtiva === 4 && (
+          <View style={styles.conteudoExpandido}>
+            <Text style={styles.bullet}>
+              🔍 **Leitura Zerada ou Inconstante:** Limpe a superfície do sensor com um pano seco e ajuste o dedo sem pressionar demais.
+            </Text>
+            <Text style={styles.bullet}>
+              ☀️ **Excesso de Luz Ambienta:** Evite usar o sensor sob luz solar direta forte apontada para a lente óptica.
+            </Text>
+            <Text style={styles.bullet}>
+              🔋 **Bateria Fraca:** Se o LED do ESP32 estiver fraco, recarregue o dispositivo.
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* ESPAÇAMENTO FINAL */}
+      <View style={styles.espacoFinal} />
+    </ScrollView>
   );
 }
 
-
-// ========================================
-// ESTILOS
-// ========================================
-
 const styles = StyleSheet.create({
-
-  background: {
+  scrollArea: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
     width: '100%',
-    height: '100%',
   },
 
-
-  // ========================================
-  // MENU
-  // ========================================
-
-  botaoMenu: {
-    marginTop: 20,
-    marginLeft: 20,
-
-    width: 45,
-    height: 45,
-
-    borderRadius: 12,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    position: 'absolute',
-
-    zIndex: 999,
+  scrollConteudo: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 80,
   },
 
-  textoMenu: {
-    fontSize: 28,
-    color: '#555',
-    marginTop: -2,
+  botaoVoltar: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ECEFF1',
+    borderRadius: 8,
+    marginBottom: 16,
   },
 
-
-  // ========================================
-  // LOGO
-  // ========================================
-
-  logo: {
-    width: 370,
-    height: 200,
-
-    resizeMode: 'contain',
-
-    marginTop: -30,
-    marginLeft: 20,
+  textoBotaoVoltar: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#37474F',
   },
 
-
-  // ========================================
-  // SAUDAÇÃO
-  // ========================================
-
-  textoBomDia: {
+  titulo: {
     fontSize: 24,
-
-    color: '#000',
-
-    marginTop: -10,
-    marginLeft: 20,
-
-    fontWeight: '400',
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 6,
   },
 
-
-  // ========================================
-  // CARDS FIXOS
-  // ========================================
-
-  linhaCards: {
-    flexDirection: 'row',
-
-    justifyContent: 'center',
-
-    marginTop: 20,
+  subtitulo: {
+    fontSize: 14,
+    color: '#7F8C8D',
+    marginBottom: 16,
+    lineHeight: 20,
   },
 
-  cardVerde: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 15,
-
-    marginRight: 10,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardAzul: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#CBEFF2',
-
-    borderRadius: 15,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardCinza: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#DDE4F6',
-
-    borderRadius: 15,
-
-    marginRight: 10,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardRoxo: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#DCD8FA',
-
-    borderRadius: 15,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  textoCard: {
-    fontSize: 16,
-
-    color: '#333',
-
-    lineHeight: 22,
-
-    marginLeft: 40,
-  },
-
-
-  // ========================================
-  // SUGESTÕES
-  // ========================================
-
-  tituloSugestao: {
-    fontSize: 16,
-
-    color: '#444',
-
-    marginTop: 30,
-    marginLeft: 25,
-
-    fontWeight: '500',
-  },
-
-
-  // ========================================
-  // CARD DA CONSULTA
-  // ========================================
-
-  cardConsulta: {
-    width: 330,
-
-    backgroundColor: '#FFFFFF',
-
-    borderRadius: 15,
-
-    alignSelf: 'center',
-
-    marginTop: 15,
-
-    padding: 15,
-
-    borderWidth: 1,
-
-    borderColor: '#9BC6B8',
-
-    elevation: 3,
-
+  card: {
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    elevation: 2,
     shadowColor: '#000',
-
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
-    shadowOpacity: 0.1,
-
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 4,
   },
 
-
-  linhaConsulta: {
-    flexDirection: 'row',
-
-    alignItems: 'flex-start',
-  },
-
-
-  iconeConsulta: {
-    fontSize: 30,
-
-    marginRight: 12,
-  },
-
-
-  infoConsulta: {
-    flex: 1,
-  },
-
-
-  tituloConsulta: {
+  cardTitulo: {
     fontSize: 17,
-
     fontWeight: 'bold',
-
-    color: '#4f5b8a',
-
-    marginBottom: 8,
+    color: '#2C3E50',
+    marginBottom: 6,
   },
 
-
-  textoConsulta: {
-    fontSize: 14,
-
+  cardDescricao: {
+    fontSize: 13,
     color: '#555',
-
-    marginBottom: 5,
+    marginBottom: 12,
+    lineHeight: 18,
   },
 
-
-  avisoConsulta: {
-    marginTop: 10,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 10,
-
-    paddingVertical: 7,
-
-    alignItems: 'center',
+  botaoAcao: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
   },
 
-
-  textoAvisoConsulta: {
-    fontSize: 12,
-
-    color: '#4f5b8a',
-
-    fontWeight: 'bold',
-  },
-
-
-  // ========================================
-  // ATIVIDADES
-  // ========================================
-
-  nenhumaAtividade: {
-    textAlign: 'center',
-
-    marginTop: 20,
-
-    color: '#666',
-  },
-
-
-  cardSugestao: {
-    width: 300,
-
-    height: 60,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 15,
-
-    alignSelf: 'center',
-
-    marginTop: 15,
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    justifyContent: 'space-between',
-
-    paddingHorizontal: 20,
-  },
-
-
-  textoSugestao: {
-    fontSize: 15,
-
+  textoBotao: {
+    fontSize: 13,
+    fontWeight: '600',
     color: '#333',
   },
 
-
-  hojeBox: {
-    backgroundColor: '#C8E6B8',
-
-    borderRadius: 10,
-
-    paddingHorizontal: 10,
-
-    paddingVertical: 5,
+  conteudoExpandido: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
   },
 
-
-  textoHoje: {
-    fontSize: 12,
-
+  passo: {
+    fontSize: 13,
     color: '#444',
+    marginBottom: 8,
+    lineHeight: 20,
   },
 
+  bullet: {
+    fontSize: 13,
+    color: '#444',
+    marginBottom: 10,
+    lineHeight: 20,
+  },
+
+  espacoFinal: {
+    height: 60,
+    width: '100%',
+  },
 });

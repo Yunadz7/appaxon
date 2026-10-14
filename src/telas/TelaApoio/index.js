@@ -1,810 +1,468 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import React, { useState } from 'react';
 import {
-  Text,
   View,
+  Text,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  ImageBackground,
-  Image,
-  ScrollView,
+  Linking,
+  Modal,
+  Pressable,
 } from 'react-native';
 
-import { useFocusEffect } from '@react-navigation/native';
+export default function TelaApoio({ navigation }) {
+  const [modalContatoVisivel, setModalContatoVisivel] = useState(false);
 
-// ========================================
-// URL DA API
-// ========================================
-
-const API_URL = 'http://localhost/axon_api';
-
-export default function Tela1({ navigation }) {
-
-  const [atividades, setAtividades] = useState([]);
-  const [nome, setNome] = useState("Usuário");
-
-  // Consultas do usuário logado
-  const [consultas, setConsultas] = useState([]);
-
-  // ========================================
-  // CARREGAR DADOS INICIAIS
-  // ========================================
-
-  useEffect(() => {
-    carregarUsuario();
-    carregarAtividades();
-  }, []);
-
-  // ========================================
-  // CARREGAR CONSULTAS
-  // ========================================
-
-  const carregarConsultas = async () => {
-
-    try {
-
-      const dadosUsuario =
-        await AsyncStorage.getItem("usuario");
-
-      if (!dadosUsuario) {
-
-        console.log(
-          "Usuário não encontrado."
-        );
-
-        setConsultas([]);
-
-        return;
-      }
-
-      const usuario =
-        JSON.parse(dadosUsuario);
-
-      console.log(
-        "Usuário na Tela1:",
-        usuario
-      );
-
-      const id_usuario =
-        usuario.id_usuario;
-
-      if (!id_usuario) {
-
-        console.log(
-          "ID do usuário não encontrado."
-        );
-
-        setConsultas([]);
-
-        return;
-      }
-
-      const url =
-        `${API_URL}/consulta.php?id_usuario=${id_usuario}`;
-
-      console.log(
-        "Buscando consultas:",
-        url
-      );
-
-      const response =
-        await fetch(url);
-
-      if (!response.ok) {
-
-        throw new Error(
-          "Erro HTTP: " +
-          response.status
-        );
-      }
-
-      const dadosConsultas =
-        await response.json();
-
-      console.log(
-        "RESPOSTA CONSULTAS:",
-        dadosConsultas
-      );
-
-      if (Array.isArray(dadosConsultas)) {
-
-        setConsultas(
-          dadosConsultas
-        );
-
-      } else {
-
-        setConsultas([]);
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar consultas:",
-        erro
-      );
-
-      setConsultas([]);
-
-    }
+  // Função para realizar chamadas telefónicas diretas
+  const fazerLigacao = (numero) => {
+    Linking.openURL(`tel:${numero}`);
   };
 
-  // ========================================
-  // ATUALIZAR AO VOLTAR PARA TELA1
-  // ========================================
-
-  useFocusEffect(
-    useCallback(() => {
-
-      carregarConsultas();
-
-    }, [])
-  );
-
-  // ========================================
-  // CARREGAR ATIVIDADES
-  // ========================================
-
-  const carregarAtividades = async () => {
-
-    try {
-
-      const dados =
-        await AsyncStorage.getItem(
-          "atividades"
-        );
-
-      if (dados) {
-
-        setAtividades(
-          JSON.parse(dados)
-        );
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar atividades:",
-        erro
-      );
-
-    }
+  // Função para abrir links de chat
+  const abrirLink = (url) => {
+    Linking.openURL(url);
   };
-
-  // ========================================
-  // CARREGAR USUÁRIO
-  // ========================================
-
-  const carregarUsuario = async () => {
-
-    try {
-
-      const dados =
-        await AsyncStorage.getItem(
-          "usuario"
-        );
-
-      if (dados) {
-
-        const usuario =
-          JSON.parse(dados);
-
-        setNome(
-          usuario.nome || "Usuário"
-        );
-
-      }
-
-    } catch (erro) {
-
-      console.log(
-        "Erro ao carregar usuário:",
-        erro
-      );
-
-    }
-  };
-
-  // ========================================
-  // ATIVIDADES PENDENTES
-  // ========================================
-
-  const pendentes =
-    atividades.filter(
-      item =>
-        item.concluida == false ||
-        item.concluida == 0 ||
-        item.concluida === undefined
-    );
-
-  // ========================================
-  // TELA
-  // ========================================
 
   return (
-
-    <ImageBackground
-      source={require('../../../assets/img_fundo.png')}
-      style={styles.background}
-      resizeMode="cover"
+    <ScrollView
+      style={styles.scrollArea}
+      contentContainerStyle={styles.scrollConteudo}
+      showsVerticalScrollIndicator={true}
+      bounces={true}
+      nestedScrollEnabled={true}
+      keyboardShouldPersistTaps="handled"
     >
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
+      {/* BOTÃO VOLTAR */}
+      <TouchableOpacity
+        style={styles.botaoVoltar}
+        onPress={() => navigation.navigate('TelaNovidades')}
+        activeOpacity={0.7}
       >
+        <Text style={styles.textoBotaoVoltar}>← Voltar para Informativos</Text>
+      </TouchableOpacity>
 
-        {/* ==================================
-            MENU
-        ================================== */}
+      {/* CABEÇALHO */}
+      <Text style={styles.titulo}>🆘 Canais de Apoio</Text>
+      <Text style={styles.subtitulo}>
+        Você não está sozinho. Se precisar de ajuda ou conversa imediata, utilize os canais gratuitos abaixo.
+      </Text>
+
+      {/* CARD DE DESTAQUE: CVV 188 */}
+      <View style={styles.cardCvv}>
+        <View style={styles.headerCvv}>
+          <Text style={styles.tituloCvv}>💛 CVV - Centro de Valorização da Vida</Text>
+          <Text style={styles.subtituloCvv}>Atendimento gratuito, anônimo e 24 horas por dia.</Text>
+        </View>
+
+        <Text style={styles.descricaoCvv}>
+          Apoio emocional e prevenção do suicídio para todas as pessoas que precisam conversar sob total sigilo.
+        </Text>
+
+        <View style={styles.botoesCvvGrid}>
+          <TouchableOpacity
+            style={styles.botaoLigarCvv}
+            onPress={() => fazerLigacao('188')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.textoBotaoLigar}>📞 Ligar 188</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.botaoChatCvv}
+            onPress={() => abrirLink('https://www.cvv.org.br/chat/')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.textoBotaoChat}>💬 Abrir Chat</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* SEÇÃO 1: EMERGÊNCIAS MÉDICAS */}
+      <View style={[styles.card, { backgroundColor: '#FFEBEE' }]}>
+        <Text style={styles.cardTitulo}>🚨 Emergências de Saúde (24h)</Text>
+        <Text style={styles.cardDescricao}>
+          Para crises graves, falta de ar física persistente ou episódios de dor intensa no peito:
+        </Text>
 
         <TouchableOpacity
-          style={styles.botaoMenu}
-          onPress={() =>
-            navigation.openDrawer()
-          }
+          style={styles.itemEmergencia}
+          onPress={() => fazerLigacao('192')}
+          activeOpacity={0.7}
         >
-
-          <Text style={styles.textoMenu}>
-            ☰
-          </Text>
-
+          <View>
+            <Text style={styles.nomeEmergencia}>SAMU - Serviço de Atendimento Móvel</Text>
+            <Text style={styles.numeroEmergencia}>Ligue 192</Text>
+          </View>
+          <Text style={styles.iconeAcao}>📞</Text>
         </TouchableOpacity>
 
-
-        {/* ==================================
-            LOGO
-        ================================== */}
-
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={styles.logo}
-        />
-
-
-        {/* ==================================
-            SAUDAÇÃO
-        ================================== */}
-
-        <Text style={styles.textoBomDia}>
-          Olá, {nome}
-        </Text>
-
-
-        {/* ==================================
-            CARDS FIXOS
-        ================================== */}
-
-        <View style={styles.linhaCards}>
-
-          <TouchableOpacity
-            style={styles.cardVerde}
-            onPress={() =>
-              navigation.navigate(
-                'TelaConsulta'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Consulta
-            </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={styles.cardAzul}
-            onPress={() =>
-              navigation.navigate(
-                'TelaAtividades'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Atividades
-            </Text>
-
-          </TouchableOpacity>
-
-        </View>
-
-
-        <View style={styles.linhaCards}>
-
-          <TouchableOpacity
-            style={styles.cardCinza}
-            onPress={() =>
-              navigation.navigate(
-                'TelaRegistro'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Registro
-            </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={styles.cardRoxo}
-            onPress={() =>
-              navigation.navigate(
-                'TelaNovidades'
-              )
-            }
-          >
-
-            <Text style={styles.textoCard}>
-              Novidades e dicas
-            </Text>
-
-          </TouchableOpacity>
-
-        </View>
-
-
-        {/* ==================================
-            SUGESTÕES
-        ================================== */}
-
-        <Text style={styles.tituloSugestao}>
-          Sugestões →
-        </Text>
-
-
-        {/* ==================================
-            CONSULTAS
-        ================================== */}
-
-        {/* ==================================
-    CONSULTAS
-================================== */}
-
-{consultas.length > 0 && (
-
-  consultas.map((consulta) => (
-
-    <View
-      key={String(consulta.id_consulta)}
-      style={styles.cardConsulta}
-    >
-
-      <View style={styles.linhaConsulta}>
-
-        <Text style={styles.iconeConsulta}>
-          🩺
-        </Text>
-
-        <View style={styles.infoConsulta}>
-
-          <Text style={styles.tituloConsulta}>
-            Consulta agendada
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            👨‍⚕️ {consulta.medico || "Médico não informado"}
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            📅 {consulta.data_consulta}
-          </Text>
-
-          <Text style={styles.textoConsulta}>
-            🕐 {consulta.horario}
-          </Text>
-
-        </View>
-
+        <TouchableOpacity
+          style={styles.itemEmergencia}
+          onPress={() => fazerLigacao('193')}
+          activeOpacity={0.7}
+        >
+          <View>
+            <Text style={styles.nomeEmergencia}>Corpo de Bombeiros</Text>
+            <Text style={styles.numeroEmergencia}>Ligue 193</Text>
+          </View>
+          <Text style={styles.iconeAcao}>📞</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.avisoConsulta}>
-
-        <Text style={styles.textoAvisoConsulta}>
-          Consulta marcada
+      {/* SEÇÃO 2: APOIO JOVEM E ONLINE */}
+      <View style={[styles.card, { backgroundColor: '#E3F2FD' }]}>
+        <Text style={styles.cardTitulo}>💬 Plataformas de Apoio Digital</Text>
+        <Text style={styles.cardDescricao}>
+          Canais de escuta ativa e acolhimento focados no bem-estar emocional:
         </Text>
 
+        <TouchableOpacity
+          style={styles.itemPlataforma}
+          onPress={() => abrirLink('https://www.podefalar.org.br/')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.nomePlataforma}>🌐 Pode Falar (UNICEF)</Text>
+          <Text style={styles.descPlataforma}>Canal de ajuda anônimo para adolescentes e jovens via WhatsApp e Web.</Text>
+        </TouchableOpacity>
       </View>
 
-    </View>
+      {/* SEÇÃO 3: CAPS E ATENDIMENTO PÚBLICO */}
+      <View style={[styles.card, { backgroundColor: '#E8F5E9' }]}>
+        <Text style={styles.cardTitulo}>🏛️ Acolhimento Presencial (SUS)</Text>
+        <Text style={styles.cardDescricao}>
+          O SUS oferece atendimento psicológico e psiquiátrico gratuito através dos **CAPS** (Centros de Atenção Psicossocial) e **UBS** (Unidades Básicas de Saúde).
+        </Text>
+        <Text style={styles.bullet}>
+          • **Como funciona?** Você pode ir diretamente ao CAPS da sua cidade sem necessidade de encaminhamento prévio para passar por acolhimento.
+        </Text>
+      </View>
 
-  ))
+      {/* SEÇÃO 4: REDE DE APOIO PESSOAL */}
+      <View style={[styles.card, { backgroundColor: '#FFF3E0' }]}>
+        <Text style={styles.cardTitulo}>👥 Sua Rede de Confiança</Text>
+        <Text style={styles.cardDescricao}>
+          Mantenha por perto o número de um amigo, familiar ou terapeuta que saiba como te acolher em momentos difíceis.
+        </Text>
+        <TouchableOpacity
+          style={styles.botaoRedePessoal}
+          onPress={() => setModalContatoVisivel(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.textoBotaoRede}>💡 Dicas para conversar com alguém querido</Text>
+        </TouchableOpacity>
+      </View>
 
-)}
+      {/* ESPAÇAMENTO FINAL */}
+      <View style={styles.espacoFinal} />
 
-        {/* ==================================
-            ATIVIDADES PENDENTES
-        ================================== */}
+      {/* MODAL ORIENTAÇÃO PESSOAL */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalContatoVisivel}
+        onRequestClose={() => setModalContatoVisivel(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitulo}>🤝 Como pedir ajuda a um amigo?</Text>
 
-        {pendentes.length === 0 ? (
-
-          consultas.length === 0 && (
-
-            <Text
-              style={
-                styles.nenhumaAtividade
-              }
-            >
-              Nenhuma atividade pendente 🎉
+            <Text style={styles.modalTexto}>
+              Você não precisa explicar tudo o que está sentindo. Pode apenas enviar uma mensagem simples como:
             </Text>
 
-          )
-
-        ) : (
-
-          pendentes.map(item => (
-
-            <TouchableOpacity
-              key={item.id}
-              style={styles.cardSugestao}
-            >
-
-              <Text
-                style={styles.textoSugestao}
-              >
-                {item.nome}
+            <View style={styles.caixaExemploMensagem}>
+              <Text style={styles.textoExemplo}>
+                "Estou passando por um momento de ansiedade agora. Você pode conversar comigo por alguns minutos?"
               </Text>
+            </View>
 
-              <View
-                style={styles.hojeBox}
-              >
-
-                <Text
-                  style={styles.textoHoje}
-                >
-                  Hoje
-                </Text>
-
-              </View>
-
-            </TouchableOpacity>
-
-          ))
-
-        )}
-
-        {/* Espaço no final */}
-
-        <View
-          style={{
-            height: 40
-          }}
-        />
-
-      </ScrollView>
-
-    </ImageBackground>
+            <Pressable
+              style={styles.botaoFecharModal}
+              onPress={() => setModalContatoVisivel(false)}
+            >
+              <Text style={styles.textoFecharModal}>Entendi</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
   );
 }
 
-
-// ========================================
-// ESTILOS
-// ========================================
-
 const styles = StyleSheet.create({
-
-  background: {
+  scrollArea: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
     width: '100%',
-    height: '100%',
   },
 
-
-  // ========================================
-  // MENU
-  // ========================================
-
-  botaoMenu: {
-    marginTop: 20,
-    marginLeft: 20,
-
-    width: 45,
-    height: 45,
-
-    borderRadius: 12,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    position: 'absolute',
-
-    zIndex: 999,
+  scrollConteudo: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 80,
   },
 
-  textoMenu: {
-    fontSize: 28,
-    color: '#555',
-    marginTop: -2,
+  botaoVoltar: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ECEFF1',
+    borderRadius: 8,
+    marginBottom: 16,
   },
 
-
-  // ========================================
-  // LOGO
-  // ========================================
-
-  logo: {
-    width: 370,
-    height: 200,
-
-    resizeMode: 'contain',
-
-    marginTop: -30,
-    marginLeft: 20,
+  textoBotaoVoltar: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#37474F',
   },
 
-
-  // ========================================
-  // SAUDAÇÃO
-  // ========================================
-
-  textoBomDia: {
+  titulo: {
     fontSize: 24,
-
-    color: '#000',
-
-    marginTop: -10,
-    marginLeft: 20,
-
-    fontWeight: '400',
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 6,
   },
 
-
-  // ========================================
-  // CARDS FIXOS
-  // ========================================
-
-  linhaCards: {
-    flexDirection: 'row',
-
-    justifyContent: 'center',
-
-    marginTop: 20,
+  subtitulo: {
+    fontSize: 14,
+    color: '#7F8C8D',
+    marginBottom: 16,
+    lineHeight: 20,
   },
 
-  cardVerde: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 15,
-
-    marginRight: 10,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardAzul: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#CBEFF2',
-
-    borderRadius: 15,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardCinza: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#DDE4F6',
-
-    borderRadius: 15,
-
-    marginRight: 10,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  cardRoxo: {
-    width: 180,
-    height: 130,
-
-    backgroundColor: '#DCD8FA',
-
-    borderRadius: 15,
-
-    justifyContent: 'center',
-
-    padding: 15,
-  },
-
-  textoCard: {
-    fontSize: 16,
-
-    color: '#333',
-
-    lineHeight: 22,
-
-    marginLeft: 40,
-  },
-
-
-  // ========================================
-  // SUGESTÕES
-  // ========================================
-
-  tituloSugestao: {
-    fontSize: 16,
-
-    color: '#444',
-
-    marginTop: 30,
-    marginLeft: 25,
-
-    fontWeight: '500',
-  },
-
-
-  // ========================================
-  // CARD DA CONSULTA
-  // ========================================
-
-  cardConsulta: {
-    width: 330,
-
-    backgroundColor: '#FFFFFF',
-
-    borderRadius: 15,
-
-    alignSelf: 'center',
-
-    marginTop: 15,
-
-    padding: 15,
-
+  /* STYLES DO CARD CVV */
+  cardCvv: {
+    backgroundColor: '#FFFDE7',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
     borderWidth: 1,
-
-    borderColor: '#9BC6B8',
-
+    borderColor: '#FFF59D',
     elevation: 3,
-
     shadowColor: '#000',
-
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-
     shadowRadius: 4,
   },
 
-
-  linhaConsulta: {
-    flexDirection: 'row',
-
-    alignItems: 'flex-start',
-  },
-
-
-  iconeConsulta: {
-    fontSize: 30,
-
-    marginRight: 12,
-  },
-
-
-  infoConsulta: {
-    flex: 1,
-  },
-
-
-  tituloConsulta: {
-    fontSize: 17,
-
-    fontWeight: 'bold',
-
-    color: '#4f5b8a',
-
+  headerCvv: {
     marginBottom: 8,
   },
 
-
-  textoConsulta: {
-    fontSize: 14,
-
-    color: '#555',
-
-    marginBottom: 5,
+  tituloCvv: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#F57F17',
   },
 
+  subtituloCvv: {
+    fontSize: 12,
+    color: '#FBC02D',
+    fontWeight: '600',
+    marginTop: 2,
+  },
 
-  avisoConsulta: {
-    marginTop: 10,
+  descricaoCvv: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 14,
+    lineHeight: 18,
+  },
 
-    backgroundColor: '#D9F0C7',
+  botoesCvvGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 
+  botaoLigarCvv: {
+    backgroundColor: '#FBC02D',
+    flex: 0.48,
+    paddingVertical: 12,
     borderRadius: 10,
-
-    paddingVertical: 7,
-
     alignItems: 'center',
   },
 
+  textoBotaoLigar: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
 
-  textoAvisoConsulta: {
+  botaoChatCvv: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#FBC02D',
+    flex: 0.48,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  textoBotaoChat: {
+    color: '#F57F17',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+
+  /* CARD PADRÃO */
+  card: {
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+
+  cardTitulo: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 6,
+  },
+
+  cardDescricao: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 12,
+    lineHeight: 18,
+  },
+
+  itemEmergencia: {
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+
+  nomeEmergencia: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#C62828',
+  },
+
+  numeroEmergencia: {
     fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
 
-    color: '#4f5b8a',
+  iconeAcao: {
+    fontSize: 18,
+  },
 
+  itemPlataforma: {
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 10,
+  },
+
+  nomePlataforma: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1565C0',
+    marginBottom: 4,
+  },
+
+  descPlataforma: {
+    fontSize: 12,
+    color: '#555',
+    lineHeight: 16,
+  },
+
+  bullet: {
+    fontSize: 13,
+    color: '#444',
+    lineHeight: 19,
+  },
+
+  botaoRedePessoal: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+
+  textoBotaoRede: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#E65100',
+  },
+
+  espacoFinal: {
+    height: 60,
+    width: '100%',
+  },
+
+  /* MODAL */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+
+  modalContent: {
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: 450,
+    alignItems: 'center',
+    elevation: 5,
+  },
+
+  modalTitulo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+
+  modalTexto: {
+    fontSize: 13,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 16,
+    lineHeight: 19,
+  },
+
+  caixaExemploMensagem: {
+    backgroundColor: '#F5F5F5',
+    padding: 14,
+    borderRadius: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0288D1',
+    width: '100%',
+    marginBottom: 20,
+  },
+
+  textoExemplo: {
+    fontSize: 13,
+    color: '#333',
+    fontStyle: 'italic',
+    lineHeight: 18,
+  },
+
+  botaoFecharModal: {
+    backgroundColor: '#0288D1',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+
+  textoFecharModal: {
+    color: '#FFF',
+    fontSize: 14,
     fontWeight: 'bold',
   },
-
-
-  // ========================================
-  // ATIVIDADES
-  // ========================================
-
-  nenhumaAtividade: {
-    textAlign: 'center',
-
-    marginTop: 20,
-
-    color: '#666',
-  },
-
-
-  cardSugestao: {
-    width: 300,
-
-    height: 60,
-
-    backgroundColor: '#D9F0C7',
-
-    borderRadius: 15,
-
-    alignSelf: 'center',
-
-    marginTop: 15,
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    justifyContent: 'space-between',
-
-    paddingHorizontal: 20,
-  },
-
-
-  textoSugestao: {
-    fontSize: 15,
-
-    color: '#333',
-  },
-
-
-  hojeBox: {
-    backgroundColor: '#C8E6B8',
-
-    borderRadius: 10,
-
-    paddingHorizontal: 10,
-
-    paddingVertical: 5,
-  },
-
-
-  textoHoje: {
-    fontSize: 12,
-
-    color: '#444',
-  },
-
 });
