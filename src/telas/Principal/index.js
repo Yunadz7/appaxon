@@ -16,7 +16,7 @@ export default function Principal({ navigation }) {
      style={styles.logo}
     />
 
-    <Text style={styles.titulo1}>Explore o fututo {"\n"} da conexão</Text>
+    <Text style={styles.titulo1}>Explore o futuro {"\n"} da conexão</Text>
     <Text style={styles.titulo2}>Conecte-se e acompanhe tudo{"\n"}com facilidade e praticidade</Text>
 
 
