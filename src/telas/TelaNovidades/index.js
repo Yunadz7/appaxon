@@ -27,13 +27,6 @@ export default function TelaNovidades({ navigation }) {
       tela: 'TelaApoio',
     },
     {
-      id: 'metas',
-      titulo: 'Metas e Hábitos',
-      icone: '🔥',
-      cor: '#E5E8F5', // Lilás claro
-      tela: 'TelaMetas',
-    },
-    {
       id: 'novidades',
       titulo: 'Novidades do App',
       icone: '🆕',

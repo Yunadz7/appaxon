@@ -32,7 +32,6 @@ import TelaDetalheRegistro from './src/telas/TelaDetalheRegistro';
 import TelaContato from './src/telas/TelaContato';
 import TelaApoio from './src/telas/TelaApoio';
 import TelaComoUsar from './src/telas/TelaComoUsar';
-import TelaMetas from './src/telas/TelaMetas';
 import TelaMotivacao from './src/telas/TelaMotivacao';
 import TelaInfoNovidades from './src/telas/TelaInfoNovidades';
 import TelaDicas from './src/telas/TelaDicas';
@@ -99,7 +98,6 @@ export default function App() {
           <Stack.Screen name="TelaContato" component={TelaContato}/>
           <Stack.Screen name="TelaApoio" component={TelaApoio}/>
           <Stack.Screen name="TelaComoUsar" component={TelaComoUsar}/>
-          <Stack.Screen name="TelaMetas" component={TelaMetas}/>
           <Stack.Screen name="TelaDicas" component={TelaDicas}/>
           <Stack.Screen name="TelaSensor" component={TelaSensor}/>
           <Stack.Screen name="TelaMotivacao" component={TelaMotivacao}/>
